@@ -1,0 +1,56 @@
+﻿<Window x:Class="DataInserter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DataInserter"
+        mc:Ignorable="d"
+        xmlns:commands="clr-namespace:DataInserter.ViewModel.Commands"
+        xmlns:vm="clr-namespace:DataInserter.ViewModel"
+        xmlns:uc="clr-namespace:DataInserter.View.UserControls"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        Title="Data Inserter" Height="450" Width="800" MinWidth="700" MinHeight="400" MaxWidth="1000" MaxHeight="600">
+
+    <Window.DataContext>
+        <vm:Program/>
+    </Window.DataContext>
+
+    <Grid Margin="5 10 5 10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="*"/>
+
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Margin="15">
+
+            <TextBlock Text="Hello! This small program allows you to change a .xml file and create a .sql file in the same time. Everything is based on the .xls file that is needed to work."
+                       TextWrapping="Wrap"
+                       Margin="0 0 0 15"
+            />
+
+            <uc:SearchFieldControl DefaultText="Location of XML files.." Text="Text" Padding="0 0 0 15"/>
+            <uc:SearchFieldControl DefaultText="Location of PDXML program.." Text="Text" Padding="0 0 0 15"/>
+            <uc:SearchFieldControl DefaultText="Location of MaterialCode.xls file.." Text="Text" Padding="0 0 0 15"/>
+            <uc:SearchFieldControl DefaultText="Location of MissingGroup.xls file.." Text="Text" Padding="0 0 0 15"/>
+
+        </StackPanel>
+
+        <uc:ActionCheckBoxControl Grid.Column="2" Grid.Row="0" x:Name="CheckBoxes"/>
+
+
+        <Button Grid.Column="1" Grid.Row="1"
+            Height="50" Width="100" 
+            Content="Run!" Command="{Binding RunProgramCommand}"/>
+
+        <Label Grid.Column="2" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+               Content="Created by: cnsmacie."/>
+
+    </Grid>
+</Window>
