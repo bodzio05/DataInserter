@@ -1,0 +1,94 @@
+﻿<UserControl x:Class="DataInserter.View.ExcelReaderView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DataInserter.View"
+             xmlns:conv="clr-namespace:DataInserter.View.Converters"
+             xmlns:uc="clr-namespace:DataInserter.View.UserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             DataContext="{Binding ExcelReaderViewModel}"
+             xmlns:md="https://github.com/fantasticfiasco/mvvm-dialogs"
+             md:DialogServiceViews.IsRegistered="True">
+    
+    <UserControl.Resources>
+        <conv:DatabindingDebugConverter x:Key="DatabindingDebugConverter"/>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.ColumnSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="4*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="Choose excel file:" VerticalAlignment="Bottom"
+                                   FontSize="14"/>
+
+            <TextBox Width="450" Height="30" Grid.Row="1" Text="{Binding ExcelPath, NotifyOnSourceUpdated=True, Mode=TwoWay}"/>
+            <Button Content="Search.." Command="{Binding SearchForExcelFileCommand}"
+                    Height="30" Width="90" Grid.Column="1" Grid.Row="1"/>
+        </Grid>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="1">
+            <TextBlock Text="Sheet number:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <!--<TextBox Margin="10 5 0 0"
+                     Height="30" Width="30"
+                     VerticalAlignment="Center" HorizontalAlignment="Center"
+                     TextAlignment="Center"/>-->
+            <uc:SpinnerUserControl Margin="10 0 0 0" RandomAmount="{Binding SheetNumber, NotifyOnSourceUpdated=True, Mode=TwoWay}"/>
+        </StackPanel>
+
+        <Button Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" 
+                            Content="Add new matchnig condition" Height="30"
+                            Command="{Binding AddConditionCommand}"/>
+
+        <DataGrid Grid.Row="3" Grid.ColumnSpan="2"
+                  ItemsSource="{Binding Conditions, Mode=TwoWay, NotifyOnSourceUpdated=True}"
+                  SelectedItem="{Binding SelectedCondition, Mode=TwoWay}"
+                  AutoGenerateColumns="False"
+                  CanUserResizeColumns="True" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Excel column name" Binding="{Binding ExcelPropertyName}"/>
+                <DataGridTextColumn Header="Xml node level" Binding="{Binding NodeLevel}"/>
+                <DataGridTextColumn Header="Xml node name" Binding="{Binding XmlPropertyName}"/>
+                <DataGridTextColumn Header="Database table name"/>
+                <DataGridTemplateColumn Header="Modification">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical">
+                                <Button Content="Modify" Command="{Binding ModifyConditionCommand, Converter={StaticResource DatabindingDebugConverter}}"/>
+                                <Button Content="Delete" Command="{Binding DeleteConditionCommand, Converter={StaticResource DatabindingDebugConverter}}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Button Grid.Row="6" Grid.ColumnSpan="2" Content="Run ExcelReader" Margin="0 0 0 3"
+                            Width="140" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                            FontSize="14" FontWeight="Bold" Command="{Binding RunExcelReaderCommand}"/>
+    </Grid>
+    
+</UserControl>

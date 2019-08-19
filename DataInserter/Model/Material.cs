@@ -18,17 +18,15 @@ namespace DataInserter
 
         }
 
-        public Material(string name, string code)
+        public Material(string name, string code): this()
         {
             Name = name;
             Code = code;
         }
 
-        public Material(string standard, string name, string code)
+        public Material(string standard, string name, string code): this(name, code)
         {
             Standard = standard;
-            Name = name;
-            Code = code;
         }
     }
 }

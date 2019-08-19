@@ -1,0 +1,60 @@
+﻿<Window x:Class="DataInserter.View.NewConditionView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:DataInserter.View"
+        xmlns:m="clr-namespace:DataInserter.Model"
+        mc:Ignorable="d"
+        Title="Add new condition" Height="200" Width="400"
+        DataContext="{Binding NewConditionViewModel}"
+        xmlns:conv="clr-namespace:DataInserter.View.Converters">
+
+    <Window.Resources>
+        <conv:DatabindingDebugConverter x:Key="DatabindingDebugConverter"/>
+        <ObjectDataProvider x:Key="dataFromEnum" MethodName="GetValues"
+                            ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="m:NodeLevel"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
+    
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="35"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0" VerticalAlignment="Center" Margin="5">
+            <TextBlock Text="Input name of the column in the excel file." 
+                       TextWrapping="Wrap"/>
+            <TextBox Margin="0 10 0 0" Text="{Binding ExcelColumnName}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="5">
+            <TextBlock Text="Choose the level of the change: material or standard" 
+                       TextWrapping="Wrap"/>
+            <ComboBox Margin="0 10 0 0" ItemsSource="{Binding Source={StaticResource dataFromEnum}}" SelectedValue="{Binding NodeLevel}"/>
+
+
+        </StackPanel>
+
+        <StackPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Margin="5">
+            <TextBlock Text="Input name of the property in the .xml file." 
+                       TextWrapping="Wrap"/>
+            <TextBox Margin="0 10 0 0" Text="{Binding XmlNodeName}"/>
+        </StackPanel>
+
+        <Button Grid.Column="2" Grid.Row="1"
+                Content="Add and close" Width="100" Height="30"
+                Command="{Binding AddAndCloseCommand}"/>
+    </Grid>
+</Window>

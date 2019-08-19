@@ -8,49 +8,25 @@
         xmlns:commands="clr-namespace:DataInserter.ViewModel.Commands"
         xmlns:vm="clr-namespace:DataInserter.ViewModel"
         xmlns:uc="clr-namespace:DataInserter.View.UserControls"
+        xmlns:views="clr-namespace:DataInserter.View"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        Title="Data Inserter" Height="450" Width="800" MinWidth="700" MinHeight="400" MaxWidth="1000" MaxHeight="600">
+        Title="Data Inserter" Height="450" Width="520" ResizeMode="NoResize">
 
-    <Window.DataContext>
-        <vm:Program/>
-    </Window.DataContext>
+    <Grid Margin="5">
+        <TabControl Grid.Row="0">
+            <TabItem Header="Excel Reader" FontSize="14">
+                <views:ExcelReaderView/>
+            </TabItem>
+            
+            <TabItem Header="XML Editor" FontSize="14">
+                <views:XmlManipulatorView/>
+            </TabItem>
 
-    <Grid Margin="5 10 5 10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="*"/>
+            <TabItem Header="SQL Creator" FontSize="14">
+                <views:SqlCreatorView/>
+            </TabItem>
+        </TabControl>
 
-        </Grid.RowDefinitions>
-
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-
-        <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Margin="15">
-
-            <TextBlock Text="Hello! This small program allows you to change a .xml file and create a .sql file in the same time. Everything is based on the .xls file that is needed to work."
-                       TextWrapping="Wrap"
-                       Margin="0 0 0 15"
-            />
-
-            <uc:SearchFieldControl DefaultText="Location of XML files.." Text="Text" Padding="0 0 0 15"/>
-            <uc:SearchFieldControl DefaultText="Location of PDXML program.." Text="Text" Padding="0 0 0 15"/>
-            <uc:SearchFieldControl DefaultText="Location of MaterialCode.xls file.." Text="Text" Padding="0 0 0 15"/>
-            <uc:SearchFieldControl DefaultText="Location of MissingGroup.xls file.." Text="Text" Padding="0 0 0 15"/>
-
-        </StackPanel>
-
-        <uc:ActionCheckBoxControl Grid.Column="2" Grid.Row="0" x:Name="CheckBoxes"/>
-
-
-        <Button Grid.Column="1" Grid.Row="1"
-            Height="50" Width="100" 
-            Content="Run!" Command="{Binding RunProgramCommand}"/>
-
-        <Label Grid.Column="2" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom"
-               Content="Created by: cnsmacie."/>
-
+        
     </Grid>
 </Window>

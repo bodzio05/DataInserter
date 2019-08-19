@@ -6,56 +6,102 @@ namespace DataInserter.ViewModel.Commands
 {
     class RelayCommand : ICommand
     {
-        #region Fields 
-        readonly Action<object> _execute;
-        readonly Func<object, bool> _canExecute;
-        object lockThis = new object();
-        #endregion // Fields 
+        public event EventHandler CanExecuteChanged
+        {
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+        private Action methodToExecute;
+        private Func<bool> canExecuteEvaluator;
+        public RelayCommand(Action methodToExecute, Func<bool> canExecuteEvaluator)
+        {
+            this.methodToExecute = methodToExecute;
+            this.canExecuteEvaluator = canExecuteEvaluator;
+        }
+        public RelayCommand(Action methodToExecute)
+            : this(methodToExecute, null)
+        {
+        }
+        public bool CanExecute(object parameter)
+        {
+            if (this.canExecuteEvaluator == null)
+            {
+                return true;
+            }
+            else
+            {
+                bool result = this.canExecuteEvaluator.Invoke();
+                return result;
+            }
+        }
+        public void Execute(object parameter)
+        {
+            this.methodToExecute.Invoke();
+        }
+    }
 
-        #region Constructors 
-        public RelayCommand(Action<object> execute) : this(execute, null) { }
-        public RelayCommand(Action<object> execute, Func<object, bool> canExecute)
+    public class RelayCommand<T> : ICommand
+    {
+        #region Fields
+
+        private readonly Action<T> _execute = null;
+        private readonly Predicate<T> _canExecute = null;
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Creates a new command that can always execute.
+        /// </summary>
+        /// <param name="execute">The execution logic.</param>
+        public RelayCommand(Action<T> execute)
+            : this(execute, null)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new command with conditional execution.
+        /// </summary>
+        /// <param name="execute">The execution logic.</param>
+        /// <param name="canExecute">The execution status logic.</param>
+        public RelayCommand(Action<T> execute, Predicate<T> canExecute)
         {
             if (execute == null)
-                throw new ArgumentNullException(nameof(execute));
+                throw new ArgumentNullException("execute");
 
             _execute = execute;
             _canExecute = canExecute;
         }
-        #endregion // Constructors 
 
-        #region ICommand Members 
-        [DebuggerStepThrough]
+        #endregion
+
+        #region ICommand Members
+
         public bool CanExecute(object parameter)
         {
-            return _canExecute == null ? true : _canExecute(parameter);
+            return _canExecute == null ? true : _canExecute((T)parameter);
         }
 
         public event EventHandler CanExecuteChanged
         {
             add
             {
-                lock (lockThis)
-                {
-                    if (_canExecute != null)
-                        CommandManager.RequerySuggested += value;
-                }
-
+                if (_canExecute != null)
+                    CommandManager.RequerySuggested += value;
             }
             remove
             {
-                lock (lockThis)
-                {
-                    if (_canExecute != null)
-                        CommandManager.RequerySuggested -= value;
-                }
+                if (_canExecute != null)
+                    CommandManager.RequerySuggested -= value;
             }
         }
 
         public void Execute(object parameter)
         {
-            _execute(parameter);
+            _execute((T)parameter);
         }
-        #endregion // ICommand Members 
+
+        #endregion
     }
 }

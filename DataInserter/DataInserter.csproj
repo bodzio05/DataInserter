@@ -37,6 +37,9 @@
     <Reference Include="Microsoft.Expression.Interactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\Microsoft.Expression.Interactions.dll</HintPath>
     </Reference>
+    <Reference Include="MvvmDialogs, Version=5.3.0.0, Culture=neutral, PublicKeyToken=3d3b9708589bc73e, processorArchitecture=MSIL">
+      <HintPath>..\packages\MvvmDialogs.5.3.0\lib\net45\MvvmDialogs.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Windows.Forms" />
@@ -61,12 +64,31 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ViewModel\BaseViewModel.cs" />
+    <Compile Include="Model\MatchingCondition.cs" />
+    <Compile Include="Model\NodeLevel.cs" />
     <Compile Include="ViewModel\Commands\RelayCommand.cs" />
     <Compile Include="ViewModel\ExcelReader.cs" />
     <Compile Include="Model\Material.cs" />
+    <Compile Include="ViewModel\ExcelReaderViewModel.cs" />
+    <Compile Include="ViewModel\Interfaces\IMainViewModel.cs" />
+    <Compile Include="ViewModel\Interfaces\IViewModel.cs" />
+    <Compile Include="ViewModel\MainViewModel.cs" />
+    <Compile Include="ViewModel\NewConditionViewModel.cs" />
     <Compile Include="ViewModel\SQLCreator.cs" />
+    <Compile Include="ViewModel\SQLCreatorViewModel.cs" />
+    <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="ViewModel\XMLManipulator.cs" />
+    <Compile Include="ViewModel\XMLManipulatorViewModel.cs" />
+    <Compile Include="View\Converters\DatabindingDebugConverter.cs" />
+    <Compile Include="View\ExcelReaderView.xaml.cs">
+      <DependentUpon>ExcelReaderView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\NewConditionView.xaml.cs">
+      <DependentUpon>NewConditionView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SqlCreatorView.xaml.cs">
+      <DependentUpon>SqlCreatorView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\UserControls\ActionCheckBoxControl.xaml.cs">
       <DependentUpon>ActionCheckBoxControl.xaml</DependentUpon>
     </Compile>
@@ -76,6 +98,16 @@
     <Compile Include="View\UserControls\SearchFieldControl.xaml.cs">
       <DependentUpon>SearchFieldControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\UserControls\SpinnerUserControl.xaml.cs">
+      <DependentUpon>SpinnerUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\XmlManipulatorView.xaml.cs">
+      <DependentUpon>XmlManipulatorView.xaml</DependentUpon>
+    </Compile>
+    <Page Include="View\ExcelReaderView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -88,6 +120,14 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="View\NewConditionView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SqlCreatorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\UserControls\ActionCheckBoxControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -97,6 +137,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\UserControls\SearchFieldControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\UserControls\SpinnerUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\XmlManipulatorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -160,7 +208,14 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModel\Helpers\" />
-    <Folder Include="View\ChildWindows\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Resources\DOWN_ARROW.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="View\Resources\UP_ARROW.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -10,9 +10,9 @@ namespace DataInserter.ViewModel
 {
     public class Program
     {
-        public ICommand RunProgramCommand { get { return new RelayCommand(action => this.RunProgram()); } }
-        public ICommand BrowseFilesCommand { get { return new RelayCommand(action => this.BrowseExcelFiles()); } }
-        public ICommand BrowseFolderCommand { get { return new RelayCommand(action => this.BrowseFolder()); } }
+        //public ICommand RunProgramCommand { get { return new RelayCommand(action => this.RunProgram()); } }
+        //public ICommand BrowseFilesCommand { get { return new RelayCommand(action => this.BrowseExcelFiles()); } }
+        //public ICommand BrowseFolderCommand { get { return new RelayCommand(action => this.BrowseFolder()); } }
 
 
         public string XmlFolderPath { get; set; }
