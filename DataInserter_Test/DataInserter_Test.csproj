@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Talgren_Phb_test.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

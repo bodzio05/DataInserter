@@ -10,23 +10,23 @@
         xmlns:uc="clr-namespace:DataInserter.View.UserControls"
         xmlns:views="clr-namespace:DataInserter.View"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        Title="Data Inserter" Height="450" Width="520" ResizeMode="NoResize">
+        Title="Data Inserter" Height="800" Width="830" ResizeMode="NoResize"
+        Icon="pack://application:,,,/DataInserter;component/View/Resources/icon_iron_man.png">
 
     <Grid Margin="5">
-        <TabControl Grid.Row="0">
-            <TabItem Header="Excel Reader" FontSize="14">
-                <views:ExcelReaderView/>
-            </TabItem>
-            
-            <TabItem Header="XML Editor" FontSize="14">
-                <views:XmlManipulatorView/>
-            </TabItem>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="170"/>
+            <RowDefinition Height="225"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
 
-            <TabItem Header="SQL Creator" FontSize="14">
-                <views:SqlCreatorView/>
-            </TabItem>
-        </TabControl>
+        <views:ExcelReaderView Grid.Row="0"/>
+        <views:XmlManipulatorView Grid.Row="1"/>
+        <views:SqlCreatorView Grid.Row="2"/>
 
-        
+        <Button Grid.Row="3" Grid.ColumnSpan="2" Content="Run DataInserter" Margin="0 0 0 3"
+                Width="140" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                FontSize="14" FontWeight="Bold" Command="{Binding RunDataInserterCommand}"/>
     </Grid>
 </Window>

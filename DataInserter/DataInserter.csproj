@@ -34,6 +34,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Confidence.Platform.ServiceModel">
+      <HintPath>..\..\..\..\..\..\ConsolisTekla\CNS\TeklaTools_Package\Confidence.Platform.ServiceModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Confident_ConfidenceTools">
+      <HintPath>..\..\..\..\..\..\ConsolisTekla\CNS\2017\Addons\TeklaTools\Confident_ConfidenceTools.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Expression.Interactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\Microsoft.Expression.Interactions.dll</HintPath>
     </Reference>
@@ -64,20 +70,21 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\DatabaseFields.cs" />
+    <Compile Include="Model\DatabaseTable.cs" />
+    <Compile Include="Model\MatchedData.cs" />
     <Compile Include="Model\MatchingCondition.cs" />
     <Compile Include="Model\NodeLevel.cs" />
+    <Compile Include="Model\XmlNodes.cs" />
     <Compile Include="ViewModel\Commands\RelayCommand.cs" />
-    <Compile Include="ViewModel\ExcelReader.cs" />
     <Compile Include="Model\Material.cs" />
     <Compile Include="ViewModel\ExcelReaderViewModel.cs" />
     <Compile Include="ViewModel\Interfaces\IMainViewModel.cs" />
     <Compile Include="ViewModel\Interfaces\IViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\NewConditionViewModel.cs" />
-    <Compile Include="ViewModel\SQLCreator.cs" />
     <Compile Include="ViewModel\SQLCreatorViewModel.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
-    <Compile Include="ViewModel\XMLManipulator.cs" />
     <Compile Include="ViewModel\XMLManipulatorViewModel.cs" />
     <Compile Include="View\Converters\DatabindingDebugConverter.cs" />
     <Compile Include="View\ExcelReaderView.xaml.cs">
@@ -150,7 +157,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ViewModel\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -216,6 +222,15 @@
     <Resource Include="View\Resources\UP_ARROW.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Resources\icon_iron_man.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Tools\Tools.csproj">
+      <Project>{e3ef566b-c59f-4bfc-badd-ac922580f7e1}</Project>
+      <Name>Tools</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

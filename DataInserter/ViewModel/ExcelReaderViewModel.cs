@@ -76,19 +76,38 @@ namespace DataInserter.ViewModel
                 NotifyPropertyChanged();
             }
         }
+
+        private List<MatchedData> _excelReaderResult;
+        public List<MatchedData> ExcelReaderResult
+        {
+            get => _excelReaderResult;
+            set
+            {
+                _excelReaderResult = value;
+                NotifyPropertyChanged();
+            }
+        }
         #endregion
 
         #region Fields
         private readonly IMainViewModel mainViewModel;
         private readonly IDialogService DialogService;
+        private Excel.Range xlRange;
+
+        private int colsCount;
+        private int rowsCount;
+        private int mtrNameIndex;
+        private int stdNameIntex;
+
+        private bool stdKeyExists;
+        private bool mtrKeyExists;
         #endregion
 
         #region Commands
         public ICommand SearchForExcelFileCommand { get { return new RelayCommand(SearchForExcelFile, AlwaysTrue); } }
         public ICommand AddConditionCommand { get { return new RelayCommand(AddCondition, AlwaysTrue); } }
         public ICommand DeleteConditionCommand { get { return new RelayCommand(DeleteCondition, AlwaysTrue); } }
-        //public ICommand RunExcelReaderCommand { get { return new RelayCommand(RunExcelReader, CanBeExecuted); } }
-        public ICommand RunExcelReaderCommand { get { return new RelayCommand(RunExcelReader, AlwaysTrue); } }
+        public ICommand ModifyConditionCommand { get { return new RelayCommand(ModifyCondition, AlwaysTrue); } }
         private bool AlwaysTrue() { return true; }
         private bool AlwaysFalse() { return false; }
         #endregion
@@ -97,6 +116,7 @@ namespace DataInserter.ViewModel
         public ExcelReaderViewModel(IMainViewModel mainViewModel)
         {
             this.mainViewModel = mainViewModel;
+            this.ExcelReaderResult = new List<MatchedData>();
             this.DialogService = new MvvmDialogs.DialogService();
 
             Conditions = new ObservableCollection<MatchingCondition>();
@@ -104,8 +124,6 @@ namespace DataInserter.ViewModel
         #endregion
 
         #region UI Methods
-
-
         private void SearchForExcelFile()
         {
             var ofd = new Microsoft.Win32.OpenFileDialog() { Filter = "EXCEL Files (*.xlsx)|*.xlsx" };
@@ -120,6 +138,12 @@ namespace DataInserter.ViewModel
             var result = DialogService.ShowDialog<NewConditionView>(this, dialog);
         }
 
+        public void ModifyCondition()
+        {
+            NewConditionViewModel dialog = new NewConditionViewModel(this, SelectedCondition);
+            var result = DialogService.ShowDialog<NewConditionView>(this, dialog);
+        }
+
         public void DeleteCondition()
         {
             if (SelectedCondition != null && Conditions.Contains(SelectedCondition))
@@ -130,7 +154,10 @@ namespace DataInserter.ViewModel
 
         private bool CanBeExecuted()
         {
-            if(File.Exists(ExcelPath) && Conditions.Count > 0 && SheetNumber > 0)
+            if(File.Exists(ExcelPath) && 
+                Conditions.Count > 0 && 
+                SheetNumber > 0 && 
+                (Conditions.Any(c=>c.XmlPropertyName == XmlNodes.StandardName) || Conditions.Any(c=>c.XmlPropertyName == XmlNodes.Name)))
             {
                 return true;
             }
@@ -140,31 +167,37 @@ namespace DataInserter.ViewModel
             }
         }
 
-        private void RunExcelReader()
+        public bool RunExcelReader()
         {
             if (CanBeExecuted())
             {
-                ReadExcel();
+                this.ExcelReaderResult = ReadExcel();
+            }
+
+            if (ExcelReaderResult != null && ExcelReaderResult.Count != 0)
+            {
+                return true;
             }
             else
             {
                 System.Windows.MessageBox.Show("Can't run program. Check the settings and try again.");
+                return false;
             }
         }
         #endregion
 
         #region Reader Methods
-        private List<Material> ReadExcel()
+        private List<MatchedData> ReadExcel()
         {
             #region OpenExcelFile
 
             Excel.Application xlApp = new Excel.Application();
             Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(ExcelPath);
             Excel._Worksheet xlWorksheet = xlWorkbook.Sheets[SheetNumber];
-            Excel.Range xlRange = xlWorksheet.UsedRange;
+            this.xlRange = xlWorksheet.UsedRange;
             #endregion
 
-            List<Material> materials = CreateList(xlRange);
+            List<MatchedData> materials = CreateMatchedList();
 
             #region CleanUp
             GC.Collect();
@@ -183,76 +216,138 @@ namespace DataInserter.ViewModel
             return materials;
         }
 
-        private static List<Material> CreateList(Excel.Range xlRange)
+        private List<MatchedData> CreateMatchedList()
         {
-            List<Material> materials = new List<Material>();
+            IdentifyRowsAndColumnsNumber();
 
-            int rowCounter = 1;
-            bool writeMaterialToList = false;
-
-            int emptyRowCounter = 0;
-            bool previousWasEmpty = false;
-            bool endReading = false;
-
-            while (!endReading)
+            if (!IdentifyStandardAndName())
             {
-                string[] row = new string[2];
+                return null;
+            }
+ 
+            List<MatchedData> materials = new List<MatchedData>();
 
-                for (int i = 0; i < 2; i++)
+            for (int i = 2; i <= rowsCount; i++)
+            {
+                string[] row = ReadRow(i);
+
+                string stdName = "";
+                string mtrName = "";
+
+                if (stdKeyExists && mtrKeyExists)
                 {
-                    string value;
-                    try
+                    stdName = row[stdNameIntex - 1];
+                    mtrName = row[mtrNameIndex - 1];
+                }
+                else if (stdKeyExists && !mtrKeyExists)
+                {
+                    stdName = row[stdNameIntex - 1];
+                }
+                else if (!stdKeyExists && mtrKeyExists)
+                {
+                    mtrName = row[mtrNameIndex - 1];
+                }
+
+                for (int j = 1; j <= colsCount; j++)
+                {
+                    if (j == mtrNameIndex || j == stdNameIntex)
                     {
-                        value = xlRange.Cells[i + 1][rowCounter].Value2.ToString();
+                        continue;
                     }
-                    catch (Exception)
+
+                    var condition = Conditions.FirstOrDefault(c => c.ExcelPropertyName == xlRange.Cells[j][1].Value2.ToString());
+
+                    if (IsNotEmpty(stdName, mtrName, row[j - 1], condition))
                     {
-                        value = string.Empty;
+                        materials.Add(new MatchedData()
+                        {
+                            StandardName = stdName,
+                            MaterialName = mtrName,
+                            RootCondition = condition,
+                            PropertyValue = row[j - 1]
+                        });
                     }
-
-                    row[i] = value;
-                }
-
-                if (row[0] == "" && row[1] == "")
-                {
-                    emptyRowCounter++;
-                    previousWasEmpty = true;
-                }
-
-                if (row[0] != "" || row[1] != "")
-                {
-                    emptyRowCounter = 0;
-                    previousWasEmpty = false;
-                }
-
-                if (previousWasEmpty && emptyRowCounter > 10)
-                {
-                    endReading = true;
-                }
-
-                if (rowCounter == 1 || row[0] == "" || row[1] == "")
-                {
-                    rowCounter++;
-                    continue;
-                }
-
-                rowCounter++;
-
-                Material material = new Material(row[1], row[0]);
-                writeMaterialToList = IsNotEmpty(material);
-
-                if (writeMaterialToList)
-                {
-                    materials.Add(material);
                 }
             }
 
             return materials;
         }
 
-        private static bool IsNotEmpty(Material material)
+        private string[] ReadRow(int i)
         {
-            if (material.Code == "" || material.Name == "")
+            string[] row = new string[colsCount];
+
+            for (int j = 0; j < colsCount; j++)
+            {
+                string value;
+                try
+                {
+                    value = xlRange.Cells[j + 1][i].Value2.ToString();
+                }
+                catch (Exception ex)
+                {
+                    value = string.Empty;
+                }
+
+                row[j] = value;
+            }
+
+            return row;
+        }
+
+        private void IdentifyRowsAndColumnsNumber()
+        {
+            colsCount = xlRange.Columns.Count;
+            rowsCount = xlRange.Rows.Count;
+        }
+
+        private bool IdentifyStandardAndName()
+        {
+            for (int i = 1; i <= colsCount; i++)
+            {
+                string cellContent;
+                try
+                {
+                    cellContent = xlRange.Cells[i][1].Value2.ToString();
+                }
+                catch (Exception ex)
+                {
+                    cellContent = string.Empty;
+                    continue;
+                }
+
+                foreach (var condition in Conditions)
+                {
+                    if (condition.ExcelPropertyName == cellContent && condition.XmlPropertyName == XmlNodes.Name)
+                    {
+                        mtrNameIndex = i;
+                        mtrKeyExists = true;
+                    }
+
+                    if (condition.ExcelPropertyName == cellContent && condition.XmlPropertyName == XmlNodes.StandardName)
+                    {
+                        stdNameIntex = i;
+                        stdKeyExists = true;
+                    }
+
+                    if (mtrKeyExists && stdKeyExists)
+                    {
+                        return true;
+                    }
+                }
+
+                if (mtrKeyExists || stdKeyExists)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsNotEmpty(string stdName, string mtrName, string propValue, MatchingCondition condition)
+        {
+            if ((stdName == "" && mtrName == "") || propValue == "" || condition == null)
             {
                 return false;
             }

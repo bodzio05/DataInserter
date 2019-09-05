@@ -12,15 +12,15 @@ namespace DataInserter_Test
         [TestMethod]
         public void TestMethod1()
         {
-            string talgrenPath = "C:\\Users\\cnsmacie\\Desktop\\phb_copy.xlsx";
+            //string talgrenPath = "C:\\Users\\cnsmacie\\Desktop\\phb_copy.xlsx";
 
-            var excelList = ExcelReader.ReadExcel(talgrenPath);
-            var listFromExcel = new List<Material>();
+            //var excelList = ExcelReader.ReadExcel(talgrenPath);
+            //var listFromExcel = new List<Material>();
 
-            foreach (var item in excelList)
-            {
-                listFromExcel.Add(new Material() { Standard = item.Code, Version = item.Name });
-            }
+            //foreach (var item in excelList)
+            //{
+            //    listFromExcel.Add(new Material() { Standard = item.Code, Version = item.Name });
+            //}
 
 
         }

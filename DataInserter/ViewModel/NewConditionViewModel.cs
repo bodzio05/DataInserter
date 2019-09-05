@@ -39,8 +39,8 @@ namespace DataInserter.ViewModel
             }
         }
 
-        private string _xmlNodeName;
-        public string XmlNodeName
+        private XmlNodes _xmlNodeName;
+        public XmlNodes XmlNodeName
         {
             get => _xmlNodeName;
             set
@@ -50,13 +50,13 @@ namespace DataInserter.ViewModel
             }
         }
 
-        private MatchingCondition _newCondition;
-        public MatchingCondition NewCondition
+        private MatchingCondition _selectedCondition;
+        public MatchingCondition SelectedCondition
         {
-            get => _newCondition;
+            get => _selectedCondition;
             set
             {
-                _newCondition = value;
+                _selectedCondition = value;
                 NotifyPropertyChanged();
             }
         }
@@ -77,13 +77,30 @@ namespace DataInserter.ViewModel
         {
             this.ExcelReaderViewModel = excelViewModel;
         }
+
+        public NewConditionViewModel(ExcelReaderViewModel excelViewModel, MatchingCondition selectedCondition)
+        {
+            this.ExcelReaderViewModel = excelViewModel;
+            this.SelectedCondition = selectedCondition;
+        }
         #endregion
 
         #region Methods
         private void AddAndClose()
         {
-            ExcelReaderViewModel.Conditions.Add(new MatchingCondition(this.ExcelColumnName, this.NodeLevel, this.XmlNodeName));
-            Close();
+            if (SelectedCondition == null)
+            {
+                ExcelReaderViewModel.Conditions.Add(new MatchingCondition(this.ExcelColumnName, this.NodeLevel, this.XmlNodeName));
+                Close();
+            }
+            else
+            {
+                SelectedCondition.ExcelPropertyName = this.ExcelColumnName;
+                SelectedCondition.NodeLevel = this.NodeLevel;
+                SelectedCondition.XmlPropertyName = this.XmlNodeName;
+                Close();
+            }
+
         }
 
         private void Close()

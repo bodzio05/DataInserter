@@ -5,56 +5,79 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DataInserter.View"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800"
+             d:DesignHeight="225" d:DesignWidth="800"
              DataContext="{Binding SqlCreatorViewModel}">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="70"/>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="50"/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-
-        <Grid Grid.Row="0" Grid.ColumnSpan="2">
+    <UserControl.Resources>
+        <Style TargetType="{x:Type TextBlock}" x:Key="TextBlockGrayBrush">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    
+    <GroupBox BorderThickness="2" FontSize="14">
+        <GroupBox.Header>
+            <Label FontStyle="Italic" FontWeight="Bold" FontSize="16" FontFamily="Batang">SQL Creator</Label>
+        </GroupBox.Header>
+        <Grid Margin="2">
             <Grid.RowDefinitions>
-                <RowDefinition Height="25"/>
-                <RowDefinition/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="50"/>
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="4*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Text="Choose folder with SQL files:" VerticalAlignment="Bottom"
-                                   FontSize="14"/>
+            <CheckBox Grid.Row="0" Content="Create .sql file." VerticalAlignment="Center"
+                      IsChecked="{Binding CreateSqlFile}"/>
+            <CheckBox Grid.Row="1" Content="Create rollback .sql file." VerticalAlignment="Center"
+                      IsChecked="{Binding CreateRollbackSql}"
+                      IsEnabled="{Binding CreateSqlFile, Mode=OneWay}"/>
 
-            <TextBox Width="450" Height="30" Grid.Row="1"/>
-            <Button Content="Search.." 
-                                Height="30" Width="90" Grid.Column="1" Grid.Row="1"/>
+            <Grid Grid.Row="2" Grid.ColumnSpan="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Choose folder with SQL files:" VerticalAlignment="Bottom"
+                           FontSize="14" IsEnabled="{Binding CreateSqlFile, Mode=OneWay}"
+                           Style="{StaticResource TextBlockGrayBrush}"/>
+
+                <TextBox Width="450" Height="30" Grid.Row="1" 
+                         Text="{Binding SqlFolderPath}"
+                         IsEnabled="{Binding CreateSqlFile, Mode=OneWay}"/>
+                <Button Content="Search.." 
+                        Height="30" Width="90" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left"
+                        Command="{Binding SearchForSqlFolderCommand}"
+                        IsEnabled="{Binding CreateSqlFile, Mode=OneWay}"/>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" Grid.Row="3">
+                <TextBlock Text="File name:" VerticalAlignment="Center" HorizontalAlignment="Center"
+                           IsEnabled="{Binding CreateSqlFile, Mode=OneWay}"
+                           Style="{StaticResource TextBlockGrayBrush}">
+                 
+                </TextBlock>
+                <TextBox Margin="10 0 0 0"
+                         Height="30" Width="250"
+                         VerticalAlignment="Center" HorizontalAlignment="Center"
+                         Text="{Binding SqlFileName}"
+                         IsEnabled="{Binding CreateSqlFile, Mode=OneWay}"/>
+            </StackPanel>
         </Grid>
+    </GroupBox>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="1">
-            <TextBlock Text="File name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBox Margin="10 0 0 0"
-                                 Height="30" Width="80"
-                                 VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        </StackPanel>
-
-        <StackPanel Orientation="Horizontal" Grid.Row="2">
-            <TextBlock Text="Table name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            <ComboBox Margin="10 0 0 0"
-                                  Height="30" Width="80"
-                                  VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        </StackPanel>
-
-        <CheckBox Grid.Row="3" Content="Create rollback .sql file."/>
-
-    </Grid>
 </UserControl>

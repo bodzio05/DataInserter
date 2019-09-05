@@ -68,7 +68,7 @@ namespace DataInserter.ViewModel
             }
         }
 
-
+        public bool ExcelReaderSuccess { get; set; }
         #endregion
 
         #region Fields
@@ -76,6 +76,7 @@ namespace DataInserter.ViewModel
         #endregion
 
         #region Commands
+        public ICommand RunDataInserterCommand { get { return new RelayCommand(RunInserter, AlwaysTrue); } }
         public ICommand ExitCommand { get { return new RelayCommand(OnExitApp, AlwaysTrue); } }
 
         private bool AlwaysTrue() { return true; }
@@ -94,6 +95,23 @@ namespace DataInserter.ViewModel
         #endregion
 
         #region Methods
+        private void RunInserter()
+        {
+            ExcelReaderSuccess = ExcelReaderViewModel.RunExcelReader();
+
+            if (!ExcelReaderSuccess || ExcelReaderViewModel.ExcelReaderResult.Count < 1) return;
+
+            if (XmlManipulatorViewModel.EditXmlFiles)
+            {
+                XmlManipulatorViewModel.RunXmlEditor(ExcelReaderViewModel.ExcelReaderResult);
+            }
+
+            if (SqlCreatorViewModel.CreateSqlFile)
+            {
+                SqlCreatorViewModel.RunSqlCreator(ExcelReaderViewModel.ExcelReaderResult);
+            }
+        }
+
         private void OnExitApp()
         {
             System.Windows.Application.Current.MainWindow.Close();

@@ -15,80 +15,80 @@
     <UserControl.Resources>
         <conv:DatabindingDebugConverter x:Key="DatabindingDebugConverter"/>
     </UserControl.Resources>
-    
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="70"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="50"/>
-            <RowDefinition/>
-            <RowDefinition Height="40"/>
-        </Grid.RowDefinitions>
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-
-        <Grid Grid.ColumnSpan="2">
+    <GroupBox FontSize="14" BorderThickness="2">
+        <GroupBox.Header>
+            <Label FontStyle="Italic" FontWeight="Bold" FontSize="16" FontFamily="Batang">Excel Reader</Label>
+        </GroupBox.Header>
+        <Grid Margin="2">
             <Grid.RowDefinitions>
-                <RowDefinition Height="25"/>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="50"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="4*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Text="Choose excel file:" VerticalAlignment="Bottom"
-                                   FontSize="14"/>
+            <Grid Grid.ColumnSpan="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
 
-            <TextBox Width="450" Height="30" Grid.Row="1" Text="{Binding ExcelPath, NotifyOnSourceUpdated=True, Mode=TwoWay}"/>
-            <Button Content="Search.." Command="{Binding SearchForExcelFileCommand}"
-                    Height="30" Width="90" Grid.Column="1" Grid.Row="1"/>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Choose excel file:" VerticalAlignment="Bottom"
+                                       FontSize="14"/>
+
+                <TextBox Width="450" Height="30" Grid.Row="1" Text="{Binding ExcelPath, NotifyOnSourceUpdated=True, Mode=TwoWay}"/>
+                <Button Content="Search.." Command="{Binding SearchForExcelFileCommand}"
+                        Height="30" Width="90" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left"/>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" Grid.Row="1">
+                <TextBlock Text="Sheet number:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <uc:SpinnerUserControl Margin="10 0 0 0" RandomAmount="{Binding SheetNumber, NotifyOnSourceUpdated=True, Mode=TwoWay}"/>
+            </StackPanel>
+
+            <Button Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" 
+                                Content="Add new matchnig condition" Height="30" Width="200"
+                                Command="{Binding AddConditionCommand}"/>
+
+            <DataGrid Grid.Row="3" Grid.ColumnSpan="2"
+                      ItemsSource="{Binding Conditions, Mode=TwoWay, NotifyOnSourceUpdated=True}"
+                      SelectedItem="{Binding SelectedCondition, Mode=TwoWay}"
+                      AutoGenerateColumns="False"
+                      CanUserResizeColumns="True" IsManipulationEnabled="False"
+                      HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Excel column name" Binding="{Binding ExcelPropertyName}"/>
+                    <DataGridTextColumn Header="Xml node level" Binding="{Binding NodeLevel}"/>
+                    <DataGridTextColumn Header="Xml node name" Binding="{Binding XmlPropertyName}"/>
+                    <DataGridTextColumn Header="Database table name" Binding="{Binding DatabaseTableName}"/>
+                    <DataGridTextColumn Header="Database field name" Binding="{Binding DatabaseFieldName}"/>
+                    <DataGridTemplateColumn Header="Modification">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Modify" Command="{Binding ModifyConditionCommand}" 
+                                            Margin="3 0 0 2" Width="80"/>
+                                    <Button Content="Delete" Command="{Binding DeleteConditionCommand}" 
+                                            Margin="2 0 0 3" Width="80"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                </DataGrid.Columns>
+            </DataGrid>
         </Grid>
+    </GroupBox>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="1">
-            <TextBlock Text="Sheet number:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            <!--<TextBox Margin="10 5 0 0"
-                     Height="30" Width="30"
-                     VerticalAlignment="Center" HorizontalAlignment="Center"
-                     TextAlignment="Center"/>-->
-            <uc:SpinnerUserControl Margin="10 0 0 0" RandomAmount="{Binding SheetNumber, NotifyOnSourceUpdated=True, Mode=TwoWay}"/>
-        </StackPanel>
-
-        <Button Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" 
-                            Content="Add new matchnig condition" Height="30"
-                            Command="{Binding AddConditionCommand}"/>
-
-        <DataGrid Grid.Row="3" Grid.ColumnSpan="2"
-                  ItemsSource="{Binding Conditions, Mode=TwoWay, NotifyOnSourceUpdated=True}"
-                  SelectedItem="{Binding SelectedCondition, Mode=TwoWay}"
-                  AutoGenerateColumns="False"
-                  CanUserResizeColumns="True" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Excel column name" Binding="{Binding ExcelPropertyName}"/>
-                <DataGridTextColumn Header="Xml node level" Binding="{Binding NodeLevel}"/>
-                <DataGridTextColumn Header="Xml node name" Binding="{Binding XmlPropertyName}"/>
-                <DataGridTextColumn Header="Database table name"/>
-                <DataGridTemplateColumn Header="Modification">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Vertical">
-                                <Button Content="Modify" Command="{Binding ModifyConditionCommand, Converter={StaticResource DatabindingDebugConverter}}"/>
-                                <Button Content="Delete" Command="{Binding DeleteConditionCommand, Converter={StaticResource DatabindingDebugConverter}}"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-
-            </DataGrid.Columns>
-        </DataGrid>
-
-        <Button Grid.Row="6" Grid.ColumnSpan="2" Content="Run ExcelReader" Margin="0 0 0 3"
-                            Width="140" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                            FontSize="14" FontWeight="Bold" Command="{Binding RunExcelReaderCommand}"/>
-    </Grid>
-    
 </UserControl>

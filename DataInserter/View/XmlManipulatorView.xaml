@@ -5,51 +5,66 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DataInserter.View"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800"
-             DataContext="{Binding XmlEditorViewModel}">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="70"/>
-            <RowDefinition Height="20"/>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+             d:DesignHeight="170" d:DesignWidth="800"
+             DataContext="{Binding XmlManipulatorViewModel}">
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
+    <UserControl.Resources>
+        <Style TargetType="{x:Type TextBlock}" x:Key="TextBlockGrayBrush">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
 
-
-        <Grid Grid.Row="0" Grid.ColumnSpan="2">
+    <GroupBox FontSize="14" BorderThickness="2">
+        <GroupBox.Header>
+            <Label FontStyle="Italic" FontWeight="Bold" FontSize="16" FontFamily="Batang">Xml Editor</Label>
+        </GroupBox.Header>
+        <Grid Margin="2">
             <Grid.RowDefinitions>
-                <RowDefinition Height="25"/>
-                <RowDefinition/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="4*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Text="Choose folder with XML files:" VerticalAlignment="Bottom"
-                                   FontSize="14"/>
+            <CheckBox Grid.Row="0" Content="Edit .xml files" VerticalAlignment="Center"
+                      IsChecked="{Binding EditXmlFiles}"/>
 
-            <TextBox Width="450" Height="30" Grid.Row="1"/>
-            <Button Content="Search.." 
-                                Height="30" Width="90" Grid.Column="1" Grid.Row="1"/>
+            <Grid Grid.Row="1" Grid.ColumnSpan="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
 
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
+                <TextBlock Text="Choose folder with XML files:" VerticalAlignment="Bottom"
+                           FontSize="14"
+                           IsEnabled="{Binding EditXmlFiles}" Style="{StaticResource TextBlockGrayBrush}"/>
+
+                <TextBox Width="450" Height="30" Grid.Row="1" 
+                         Text="{Binding XmlFolderPath}"
+                         IsEnabled="{Binding EditXmlFiles, Mode=OneWay}"/>
+                <Button Content="Search.." 
+                        Height="30" Width="90" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left"
+                        Command="{Binding SearchForExcelFileCommand}"
+                        IsEnabled="{Binding EditXmlFiles, Mode=OneWay}"/>
+
+            </Grid>
+
+            <CheckBox Grid.Row="3" Content="Create node if doesn't exist." VerticalAlignment="Center"
+                      IsChecked="{Binding CreateNodeIfNotExists}"
+                      IsEnabled="{Binding EditXmlFiles, Mode=OneWay}"/>
         </Grid>
-
-        <CheckBox Grid.Row="2" Content="Create node if doesn't exist."/>
-
-        <CheckBox Grid.Row="3" Content="Create .sql file."/>
-
-        <Button Grid.Row="6" Grid.ColumnSpan="2" Content="Run XmlEditor" Margin="0 0 0 3"
-                            Width="140" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                            FontSize="14" FontWeight="Bold" Command="{Binding RunXmlEditorCommand}"/>
-
-    </Grid>
+    </GroupBox>
 </UserControl>

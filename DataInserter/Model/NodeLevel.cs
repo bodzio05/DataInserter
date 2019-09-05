@@ -3,6 +3,7 @@
     public enum NodeLevel
     {
         Standard,
-        Material
+        Material,
+        Parameter
     }
 }
