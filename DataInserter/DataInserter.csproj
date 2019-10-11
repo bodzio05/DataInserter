@@ -75,7 +75,10 @@
     <Compile Include="Model\MatchedData.cs" />
     <Compile Include="Model\MatchingCondition.cs" />
     <Compile Include="Model\NodeLevel.cs" />
+    <Compile Include="Model\Status.cs" />
+    <Compile Include="Model\StatusEnum.cs" />
     <Compile Include="Model\XmlNodes.cs" />
+    <Compile Include="ViewModel\ApplicationProgressInfoViewModel.cs" />
     <Compile Include="ViewModel\Commands\RelayCommand.cs" />
     <Compile Include="Model\Material.cs" />
     <Compile Include="ViewModel\ExcelReaderViewModel.cs" />
@@ -86,6 +89,9 @@
     <Compile Include="ViewModel\SQLCreatorViewModel.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="ViewModel\XMLManipulatorViewModel.cs" />
+    <Compile Include="View\ApplicationProgressInfoView.xaml.cs">
+      <DependentUpon>ApplicationProgressInfoView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Converters\DatabindingDebugConverter.cs" />
     <Compile Include="View\ExcelReaderView.xaml.cs">
       <DependentUpon>ExcelReaderView.xaml</DependentUpon>
@@ -111,6 +117,10 @@
     <Compile Include="View\XmlManipulatorView.xaml.cs">
       <DependentUpon>XmlManipulatorView.xaml</DependentUpon>
     </Compile>
+    <Page Include="View\ApplicationProgressInfoView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\ExcelReaderView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

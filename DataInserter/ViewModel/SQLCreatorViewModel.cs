@@ -29,6 +29,17 @@ namespace DataInserter.ViewModel
             }
         }
 
+        private Status _status;
+        public Status Status
+        {
+            get => _status;
+            set
+            {
+                _status = value;
+                NotifyPropertyChanged();
+            }
+        }
+
         private string _sqlFolderPath;
         public string SqlFolderPath
         {
@@ -92,6 +103,7 @@ namespace DataInserter.ViewModel
         public SQLCreatorViewModel(IMainViewModel mainViewModel)
         {
             this.mainViewModel = mainViewModel;
+            this.Status = new Status(StatusEnum.Waiting);
         }
         #endregion
 
@@ -169,11 +181,46 @@ namespace DataInserter.ViewModel
             foreach (var data in this.excelReaderResult)
             {
                 fileContent.Add(CreateQuery(data));
-                rollbackFileContent.Add(RollbackQuery(data));
+                if (CreateRollbackSql)
+                {
+                    rollbackFileContent.Add(RollbackQuery(data));
+                }
             }
 
             WriteToFile(fileContent, this.SqlFolderPath, this.SqlFileName);
-            WriteToFile(rollbackFileContent, this.SqlFolderPath, this.SqlFileName + "Rollback");
+
+            if (CreateRollbackSql)
+            {
+                WriteToFile(rollbackFileContent, this.SqlFolderPath, this.SqlFileName + "Rollback");
+            }
+        }
+
+        private string CreateQuery(MatchedData data)
+        {
+            switch (data.RootCondition.NodeLevel)
+            {
+                case NodeLevel.Standard:
+                    var standard = allStandards.SingleOrDefault(s => s.Name == data.StandardName);
+                    return String.Format("UPDATE TOJMGR.{0} SET {1} = '{2}' WHERE STANDARDNAME='{3}' AND VERSION='{4}';",
+                        data.RootCondition.DatabaseTableName,
+                        data.RootCondition.DatabaseFieldName,
+                        data.PropertyValue,
+                        data.MaterialName,
+                        data.StdVersion);
+                case NodeLevel.Material:
+                    var material = ConfidenceTools.SelectSingleMaterial(data.MaterialName).FirstOrDefault();
+                    return String.Format("UPDATE TOJMGR.{0} SET {1} = '{2}' WHERE MTRNAME='{3}' AND VERSION='{4}';",
+                        data.RootCondition.DatabaseTableName,
+                        data.RootCondition.DatabaseFieldName,
+                        data.PropertyValue,
+                        data.MaterialName,
+                        data.MtrVersion);
+                case NodeLevel.Parameter:
+                    break;
+                default:
+                    break;
+            }
+            return "";
         }
 
         private string RollbackQuery(MatchedData data)
@@ -201,33 +248,7 @@ namespace DataInserter.ViewModel
             return "";
         }
 
-        private string CreateQuery(MatchedData data)
-        {
-            switch (data.RootCondition.NodeLevel)
-            {
-                case NodeLevel.Standard:
-                    var standard = allStandards.SingleOrDefault(s => s.Name == data.StandardName);
-                    return String.Format("UPDATE TOJMGR.{0} SET {1} = '{2}' WHERE STANDARDNAME='{3}' AND VERSION='{4}';",
-                        data.RootCondition.DatabaseTableName,
-                        data.RootCondition.DatabaseFieldName,
-                        data.PropertyValue,
-                        data.MaterialName,
-                        standard.Version);
-                case NodeLevel.Material:
-                    var material = ConfidenceTools.SelectSingleMaterial(data.MaterialName).FirstOrDefault();
-                    return String.Format("UPDATE TOJMGR.{0} SET {1} = '{2}' WHERE MTRNAME='{3}' AND VERSION='{4}';",
-                        data.RootCondition.DatabaseTableName,
-                        data.RootCondition.DatabaseFieldName,
-                        data.PropertyValue,
-                        data.MaterialName,
-                        material.Version);
-                case NodeLevel.Parameter:
-                    break;
-                default:
-                    break;
-            }
-            return "";
-        }
+
 
         private void WriteToFile(List<string> list, string path, string fileName)
         {

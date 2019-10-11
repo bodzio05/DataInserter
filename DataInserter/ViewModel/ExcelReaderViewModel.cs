@@ -30,6 +30,17 @@ namespace DataInserter.ViewModel
             }
         }
 
+        private Status _status;
+        public Status Status
+        {
+            get => _status;
+            set
+            {
+                _status = value;
+                NotifyPropertyChanged();
+            }
+        }
+
         private string _excelPath;
         public string ExcelPath
         {
@@ -116,6 +127,7 @@ namespace DataInserter.ViewModel
         public ExcelReaderViewModel(IMainViewModel mainViewModel)
         {
             this.mainViewModel = mainViewModel;
+            this.Status = new Status(StatusEnum.Waiting);
             this.ExcelReaderResult = new List<MatchedData>();
             this.DialogService = new MvvmDialogs.DialogService();
 
@@ -126,7 +138,7 @@ namespace DataInserter.ViewModel
         #region UI Methods
         private void SearchForExcelFile()
         {
-            var ofd = new Microsoft.Win32.OpenFileDialog() { Filter = "EXCEL Files (*.xlsx)|*.xlsx" };
+            var ofd = new Microsoft.Win32.OpenFileDialog();
             var found = ofd.ShowDialog();
             if (found == false) ExcelPath = "";
             ExcelPath = ofd.FileName;
@@ -189,6 +201,8 @@ namespace DataInserter.ViewModel
         #region Reader Methods
         private List<MatchedData> ReadExcel()
         {
+            this.Status.CurrentStatus = StatusEnum.InProgress;
+
             #region OpenExcelFile
 
             Excel.Application xlApp = new Excel.Application();
@@ -212,6 +226,8 @@ namespace DataInserter.ViewModel
             xlApp.Quit();
             Marshal.ReleaseComObject(xlApp);
             #endregion
+
+            this.Status.CurrentStatus = StatusEnum.Ended;
 
             return materials;
         }
@@ -248,8 +264,10 @@ namespace DataInserter.ViewModel
                     mtrName = row[mtrNameIndex - 1];
                 }
 
-                for (int j = 1; j <= colsCount; j++)
+                for (int j = 1; j < colsCount; j++)
                 {
+                    this.Status.CurrentActionNumber++;
+
                     if (j == mtrNameIndex || j == stdNameIntex)
                     {
                         continue;
@@ -257,7 +275,7 @@ namespace DataInserter.ViewModel
 
                     var condition = Conditions.FirstOrDefault(c => c.ExcelPropertyName == xlRange.Cells[j][1].Value2.ToString());
 
-                    if (IsNotEmpty(stdName, mtrName, row[j - 1], condition))
+                    if (IsNotEmpty(stdName, mtrName, row[j - 1], condition) && !materials.Any(d=>d.StandardName == stdName && d.MaterialName == mtrName && d.PropertyValue == row[j - 1] && d.RootCondition == condition))
                     {
                         materials.Add(new MatchedData()
                         {
@@ -297,8 +315,71 @@ namespace DataInserter.ViewModel
 
         private void IdentifyRowsAndColumnsNumber()
         {
-            colsCount = xlRange.Columns.Count;
-            rowsCount = xlRange.Rows.Count;
+            colsCount = CountNotEmptyColumns(xlRange.Columns.Count);
+            rowsCount = CountNotEmptyRows(xlRange.Rows.Count);
+
+            this.Status.CurrentActionNumber = 0;
+            this.Status.TotalActionsNumber = rowsCount*rowsCount;
+        }
+
+        private int CountNotEmptyRows(int number)
+        {
+            int emptyCounter = 0;
+            int counter = 0;
+            int lastNotEmptyCell = 0;
+
+            for (int i = 1; i <= number; i++)
+            {
+                if (emptyCounter > 10)
+                {
+                    break;
+                }
+
+                try
+                {
+                    var value = xlRange.Cells[1][i].Value2.ToString();
+                    emptyCounter = 0;
+                    counter++;
+                    lastNotEmptyCell = counter;
+                }
+                catch (Exception)
+                {
+                    counter++;
+                    emptyCounter++;
+                }
+            }
+
+            return lastNotEmptyCell;
+        }
+
+        private int CountNotEmptyColumns(int number)
+        {
+            int emptyCounter = 0;
+            int counter = 0;
+            int lastNotEmptyCell = 0;
+
+            for (int i = 1; i <= number; i++)
+            {
+                if (emptyCounter > 10)
+                {
+                    break;
+                }
+
+                try
+                {
+                    var value = xlRange.Cells[i][1].Value2.ToString();
+                    emptyCounter = 0;
+                    counter++;
+                    lastNotEmptyCell = counter;
+                }
+                catch (Exception)
+                {
+                    counter++;
+                    emptyCounter++;
+                }
+            }
+
+            return lastNotEmptyCell;
         }
 
         private bool IdentifyStandardAndName()

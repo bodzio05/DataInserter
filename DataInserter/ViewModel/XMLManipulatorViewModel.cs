@@ -26,6 +26,17 @@ namespace DataInserter.ViewModel
             }
         }
 
+        private Status _status;
+        public Status Status
+        {
+            get => _status;
+            set
+            {
+                _status = value;
+                NotifyPropertyChanged();
+            }
+        }
+
         private bool _editXmlFiles;
         public bool EditXmlFiles
         {
@@ -75,6 +86,7 @@ namespace DataInserter.ViewModel
         public XMLManipulatorViewModel(IMainViewModel mainViewModel)
         {
             this.mainViewModel = mainViewModel;
+            this.Status = new Status(StatusEnum.Waiting);
         }
         #endregion
 
@@ -102,6 +114,8 @@ namespace DataInserter.ViewModel
 
         public void RunXmlEditor(List<MatchedData> materials)
         {
+            this.Status.CurrentStatus = StatusEnum.InProgress;
+
             this.excelReaderResult = materials;
 
             if (CanBeExecuted())
@@ -112,6 +126,8 @@ namespace DataInserter.ViewModel
             {
                 System.Windows.MessageBox.Show("Can't run program. Check the settings and try again.");
             }
+
+            this.Status.CurrentStatus = StatusEnum.Ended;
         }
         #endregion
 
@@ -128,6 +144,11 @@ namespace DataInserter.ViewModel
         {
             foreach (var data in excelReaderResult)
             {
+                if (data.MaterialName == "AEP400PI-190-190-2")
+                {
+                    var test = true;
+                }
+
                 foreach (var xml in XMLFiles)
                 {
                     XDocument document = XDocument.Load(xml);
@@ -136,9 +157,11 @@ namespace DataInserter.ViewModel
                     {
                         case NodeLevel.Standard:
                             var standardNodes = document.Root.Elements();
+                            var standardName = document.Root.Element("StandardName").Value;
+                            data.StdVersion = standardNodes.FirstOrDefault(n=>n.Name == "Version").Value;
                             var node = standardNodes.Where(x => x.Name.ToString() == data.RootCondition.XmlPropertyName.ToString()).ToList();
 
-                            if (node.Count == 1)
+                            if (node.Count == 1 && data.StandardName == standardName)
                             {
                                 node[0].Value = data.PropertyValue;
                             }
@@ -152,13 +175,12 @@ namespace DataInserter.ViewModel
 
                         case NodeLevel.Material:
                             var materials = document.Root.Elements().Where(e => e.Name == "Material").ToList();
-
                             foreach (var material in materials)
                             {
                                 if (material.Element("Name").Value == data.MaterialName)
                                 {
                                     var materialNode = material.Elements().Where(x => x.Name.ToString() == data.RootCondition.XmlPropertyName.ToString()).ToList();
-
+                                    data.MtrVersion = material.Elements().FirstOrDefault(n => n.Name == "Version").Value;
                                     if (materialNode.Count == 1)
                                     {
                                         materialNode[0].Value = data.PropertyValue;

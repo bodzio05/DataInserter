@@ -1,4 +1,5 @@
-﻿using DataInserter.ViewModel.Commands;
+﻿using DataInserter.View;
+using DataInserter.ViewModel.Commands;
 using DataInserter.ViewModel.Interfaces;
 using MvvmDialogs;
 using System;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace DataInserter.ViewModel
@@ -73,6 +75,7 @@ namespace DataInserter.ViewModel
 
         #region Fields
         private readonly IDialogService DialogService;
+        private ApplicationProgressInfoView _view;
         #endregion
 
         #region Commands
@@ -97,9 +100,15 @@ namespace DataInserter.ViewModel
         #region Methods
         private void RunInserter()
         {
+            //OpenProgressInfoWindow();
+
             ExcelReaderSuccess = ExcelReaderViewModel.RunExcelReader();
 
-            if (!ExcelReaderSuccess || ExcelReaderViewModel.ExcelReaderResult.Count < 1) return;
+            if (!ExcelReaderSuccess || ExcelReaderViewModel.ExcelReaderResult.Count < 1)
+            {
+                //_view.Close();
+                return;
+            }
 
             if (XmlManipulatorViewModel.EditXmlFiles)
             {
@@ -110,6 +119,16 @@ namespace DataInserter.ViewModel
             {
                 SqlCreatorViewModel.RunSqlCreator(ExcelReaderViewModel.ExcelReaderResult);
             }
+
+            //_view.Close();
+        }
+
+        private void OpenProgressInfoWindow()
+        {
+            ApplicationProgressInfoViewModel dialog = new ApplicationProgressInfoViewModel(this);
+            _view = new ApplicationProgressInfoView();
+            _view.DataContext = dialog;
+            _view.Show();
         }
 
         private void OnExitApp()
