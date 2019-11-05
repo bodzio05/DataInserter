@@ -417,7 +417,7 @@ namespace DataInserter.ViewModel
                     }
                 }
 
-                if (mtrKeyExists || stdKeyExists)
+                if (mtrKeyExists && stdKeyExists)
                 {
                     return true;
                 }
