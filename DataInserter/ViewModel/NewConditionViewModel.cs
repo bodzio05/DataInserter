@@ -60,6 +60,33 @@ namespace DataInserter.ViewModel
                 NotifyPropertyChanged();
             }
         }
+
+        private bool _deleteFlag = false;
+        public bool DeleteFlag
+        {
+            get => _deleteFlag;
+            set
+            {
+                _deleteFlag = value;
+                NotifyPropertyChanged();
+                if (value)
+                    IsEnabled = false;
+                else
+                    IsEnabled = true;
+            }
+        }
+
+        private bool _isEnabled = true;
+        public bool IsEnabled
+        {
+            get => _isEnabled;
+            set
+            {
+                _isEnabled = value;
+                NotifyPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Fields
@@ -78,29 +105,36 @@ namespace DataInserter.ViewModel
             this.ExcelReaderViewModel = excelViewModel;
         }
 
-        public NewConditionViewModel(ExcelReaderViewModel excelViewModel, MatchingCondition selectedCondition)
-        {
-            this.ExcelReaderViewModel = excelViewModel;
-            this.SelectedCondition = selectedCondition;
-        }
+        //public NewConditionViewModel(ExcelReaderViewModel excelViewModel, MatchingCondition selectedCondition)
+        //{
+        //    this.ExcelReaderViewModel = excelViewModel;
+        //    this.SelectedCondition = selectedCondition;
+        //}
         #endregion
 
         #region Methods
         private void AddAndClose()
         {
-            if (SelectedCondition == null)
+            if (DeleteFlag)
             {
-                ExcelReaderViewModel.Conditions.Add(new MatchingCondition(this.ExcelColumnName, this.NodeLevel, this.XmlNodeName));
-                Close();
+                ExcelReaderViewModel.DeleteCondition = new DeletingCondition(this.ExcelColumnName, this.NodeLevel);
+                ExcelReaderViewModel.AllowDeletingSQL = true;
             }
             else
             {
-                SelectedCondition.ExcelPropertyName = this.ExcelColumnName;
-                SelectedCondition.NodeLevel = this.NodeLevel;
-                SelectedCondition.XmlPropertyName = this.XmlNodeName;
-                Close();
+                if (SelectedCondition == null)
+                {
+                    ExcelReaderViewModel.Conditions.Add(new MatchingCondition(this.ExcelColumnName, this.NodeLevel, this.XmlNodeName));
+                }
+                else
+                {
+                    SelectedCondition.ExcelPropertyName = this.ExcelColumnName;
+                    SelectedCondition.NodeLevel = this.NodeLevel;
+                    SelectedCondition.XmlPropertyName = this.XmlNodeName;
+                }
             }
 
+            Close();
         }
 
         private void Close()

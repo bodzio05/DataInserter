@@ -14,6 +14,7 @@
     
     <UserControl.Resources>
         <conv:DatabindingDebugConverter x:Key="DatabindingDebugConverter"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
 
     <GroupBox FontSize="14" BorderThickness="2">
@@ -60,6 +61,14 @@
             <Button Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" 
                                 Content="Add new matchnig condition" Height="30" Width="200"
                                 Command="{Binding AddConditionCommand}"/>
+
+            <StackPanel Grid.Row="2" Grid.Column="1"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                <TextBlock  Text="Deleting key added:" Visibility="{Binding AllowDeletingSQL, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <TextBlock Text="{Binding DeleteConditionKey, NotifyOnSourceUpdated=True}"
+                           Margin="10 0 0 0"/>
+            </StackPanel>
 
             <DataGrid Grid.Row="3" Grid.ColumnSpan="2"
                       ItemsSource="{Binding Conditions, Mode=TwoWay, NotifyOnSourceUpdated=True}"

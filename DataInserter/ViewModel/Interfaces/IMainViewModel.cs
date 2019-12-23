@@ -9,5 +9,6 @@ namespace DataInserter.ViewModel.Interfaces
     public interface IMainViewModel: IViewModel
     {
         bool? IsRunnable { get; set; }
+        bool AllowDeleting { get; set; }
     }
 }

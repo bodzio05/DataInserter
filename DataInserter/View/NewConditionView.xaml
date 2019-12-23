@@ -7,12 +7,14 @@
         xmlns:local="clr-namespace:DataInserter.View"
         xmlns:m="clr-namespace:DataInserter.Model"
         mc:Ignorable="d"
-        Title="Add new condition" Height="200" Width="400"
+        Title="Add new condition" 
+        Height="190" Width="400" ResizeMode="NoResize"
         DataContext="{Binding NewConditionViewModel}"
         xmlns:conv="clr-namespace:DataInserter.View.Converters">
 
     <Window.Resources>
         <conv:DatabindingDebugConverter x:Key="DatabindingDebugConverter"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <ObjectDataProvider x:Key="nodeLevelEnum" MethodName="GetValues"
                             ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
@@ -29,8 +31,8 @@
     
     <Grid Margin="10">
         <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition Height="35"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
@@ -48,17 +50,30 @@
         <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="5">
             <TextBlock Text="Choose the level of the change: material or standard" 
                        TextWrapping="Wrap"/>
-            <ComboBox Margin="0 10 0 0" ItemsSource="{Binding Source={StaticResource nodeLevelEnum}}" SelectedValue="{Binding NodeLevel}"/>
-
-
+            <ComboBox Margin="0 10 0 0" 
+                      ItemsSource="{Binding Source={StaticResource nodeLevelEnum}}" 
+                      SelectedValue="{Binding NodeLevel}"/>
         </StackPanel>
 
         <StackPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Margin="5">
             <TextBlock Text="Input name of the property in the .xml file." 
                        TextWrapping="Wrap"/>
-            <ComboBox Margin="0 10 0 0" ItemsSource="{Binding Source={StaticResource xmlNodeEnum}}" SelectedValue="{Binding XmlNodeName}"/>
+            <ComboBox Margin="0 10 0 0" 
+                      ItemsSource="{Binding Source={StaticResource xmlNodeEnum}}" 
+                      SelectedValue="{Binding XmlNodeName}"
+                      IsEnabled="{Binding IsEnabled, Mode=TwoWay, NotifyOnSourceUpdated=True}"/>
         </StackPanel>
 
+        <StackPanel Grid.Row="1" Grid.Column="0">
+            <CheckBox  
+                      Margin="5" 
+                      Content="Delete flag" 
+                      IsChecked="{Binding DeleteFlag, Mode=TwoWay, NotifyOnSourceUpdated=True}"/>
+            <Label Content="TRUE/FALSE"
+                   FontSize="10" FontStyle="Italic"
+                   Visibility="{Binding DeleteFlag, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        </StackPanel>
+        
         <Button Grid.Column="2" Grid.Row="1"
                 Content="Add and close" Width="100" Height="30"
                 Command="{Binding AddAndCloseCommand}"/>

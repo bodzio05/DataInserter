@@ -1,0 +1,79 @@
+﻿<UserControl x:Class="DataInserter.View.DeletingSQLGenerator"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DataInserter.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="185" d:DesignWidth="800"
+             DataContext="{Binding DeletingSQLGeneratorViewModel}">
+
+    <UserControl.Resources>
+        <Style TargetType="{x:Type TextBlock}" x:Key="TextBlockGrayBrush">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <GroupBox BorderThickness="2" FontSize="14">
+        <GroupBox.Header>
+            <Label FontStyle="Italic" FontWeight="Bold" FontSize="16" FontFamily="Batang">Deleting SQL generator</Label>
+        </GroupBox.Header>
+        <Grid Margin="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <CheckBox Grid.Row="0" Content="Generate deleting .sql" VerticalAlignment="Center"
+                      IsEnabled="{Binding AllowDeleting, Mode=OneWay, NotifyOnSourceUpdated=True}"
+                      IsChecked="{Binding IsEnabled, Mode=TwoWay, NotifyOnSourceUpdated=True}"/>
+
+            <Grid Grid.Row="1" Grid.ColumnSpan="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Choose folder with SQL files:" VerticalAlignment="Bottom"
+                           FontSize="14" IsEnabled="{Binding IsEnabled, Mode=OneWay}"
+                           Style="{StaticResource TextBlockGrayBrush}"/>
+
+                <TextBox Width="450" Height="30" Grid.Row="1" 
+                         Text="{Binding SqlFolderPath}"
+                         IsEnabled="{Binding IsEnabled, Mode=OneWay}"/>
+                <Button Content="Search.." 
+                        Height="30" Width="90" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left"
+                        Command="{Binding SearchForSqlFolderCommand}"
+                        IsEnabled="{Binding IsEnabled, Mode=OneWay}"/>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" Grid.Row="3">
+                <TextBlock Text="File name:" VerticalAlignment="Center" HorizontalAlignment="Center"
+                           IsEnabled="{Binding IsEnabled, Mode=OneWay}"
+                           Style="{StaticResource TextBlockGrayBrush}">
+
+                </TextBlock>
+                <TextBox Margin="10 0 0 0"
+                         Height="30" Width="250"
+                         VerticalAlignment="Center" HorizontalAlignment="Center"
+                         Text="{Binding SqlFileName}"
+                         IsEnabled="{Binding IsEnabled, Mode=OneWay}"/>
+            </StackPanel>
+        </Grid>
+    </GroupBox>
+</UserControl>

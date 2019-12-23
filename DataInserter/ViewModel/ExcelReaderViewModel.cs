@@ -77,6 +77,41 @@ namespace DataInserter.ViewModel
             }
         }
 
+        private List<MatchedData> _deleteList;
+        public List<MatchedData> DeleteList
+        {
+            get => _deleteList;
+            set
+            {
+                _deleteList = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private DeletingCondition _deleteCondition;
+        public DeletingCondition DeleteCondition
+        {
+            get => _deleteCondition;
+            set
+            {
+                _deleteCondition = value;
+                DeleteConditionKey = value.ExcelPropertyName;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private string _deleteConditionKey;
+        public string DeleteConditionKey
+        {
+            get => _deleteConditionKey;
+            set
+            {
+                _deleteConditionKey = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+
         private MatchingCondition _selectedCondition;
         public MatchingCondition SelectedCondition
         {
@@ -98,6 +133,29 @@ namespace DataInserter.ViewModel
                 NotifyPropertyChanged();
             }
         }
+
+        private bool _allowDeletingSQL;
+        public bool AllowDeletingSQL
+        {
+            get => _allowDeletingSQL;
+            set
+            {
+                _allowDeletingSQL = value;
+                NotifyPropertyChanged();
+                mainViewModel.AllowDeleting = true;
+            }
+        }
+
+        private bool _versionSpecified;
+        public bool VersionSpecified
+        {
+            get => _versionSpecified;
+            set
+            {
+                _versionSpecified = value;
+                NotifyPropertyChanged();
+            }
+        }
         #endregion
 
         #region Fields
@@ -108,17 +166,22 @@ namespace DataInserter.ViewModel
         private int colsCount;
         private int rowsCount;
         private int mtrNameIndex;
-        private int stdNameIntex;
+        private int stdNameIndex;
+        private int delKeyIndex;
+        private int mtrVersionIndex;
 
         private bool stdKeyExists;
         private bool mtrKeyExists;
+        private bool delKeyExists;
+        private bool mtrVersionExists;
         #endregion
 
         #region Commands
         public ICommand SearchForExcelFileCommand { get { return new RelayCommand(SearchForExcelFile, AlwaysTrue); } }
         public ICommand AddConditionCommand { get { return new RelayCommand(AddCondition, AlwaysTrue); } }
-        public ICommand DeleteConditionCommand { get { return new RelayCommand(DeleteCondition, AlwaysTrue); } }
-        public ICommand ModifyConditionCommand { get { return new RelayCommand(ModifyCondition, AlwaysTrue); } }
+
+        //public ICommand DeleteConditionCommand { get { return new RelayCommand(DeleteCondition, AlwaysTrue); } }
+        //public ICommand ModifyConditionCommand { get { return new RelayCommand(ModifyCondition, AlwaysTrue); } }
         private bool AlwaysTrue() { return true; }
         private bool AlwaysFalse() { return false; }
         #endregion
@@ -143,26 +206,25 @@ namespace DataInserter.ViewModel
             if (found == false) ExcelPath = "";
             ExcelPath = ofd.FileName;
         }
-
         private void AddCondition()
         {
             NewConditionViewModel dialog = new NewConditionViewModel(this);
             var result = DialogService.ShowDialog<NewConditionView>(this, dialog);
         }
 
-        public void ModifyCondition()
-        {
-            NewConditionViewModel dialog = new NewConditionViewModel(this, SelectedCondition);
-            var result = DialogService.ShowDialog<NewConditionView>(this, dialog);
-        }
+        //public void ModifyCondition()
+        //{
+            //NewConditionViewModel dialog = new NewConditionViewModel(this, SelectedCondition);
+            //var result = DialogService.ShowDialog<NewConditionView>(this, dialog);
+        //}
 
-        public void DeleteCondition()
-        {
-            if (SelectedCondition != null && Conditions.Contains(SelectedCondition))
-            {
-                Conditions.Remove(SelectedCondition);
-            }
-        }
+        //public void DeleteCondition()
+        //{
+            //if (SelectedCondition != null && Conditions.Contains(SelectedCondition))
+            //{
+            //    Conditions.Remove(SelectedCondition);
+            //}
+        //}
 
         private bool CanBeExecuted()
         {
@@ -211,6 +273,7 @@ namespace DataInserter.ViewModel
             this.xlRange = xlWorksheet.UsedRange;
             #endregion
 
+            DeleteList = new List<MatchedData>();
             List<MatchedData> materials = CreateMatchedList();
 
             #region CleanUp
@@ -240,6 +303,18 @@ namespace DataInserter.ViewModel
             {
                 return null;
             }
+
+            if (AllowDeletingSQL && (DeleteCondition != null || DeleteConditionKey != ""))
+            {
+                IdentifyDeletingColumn();
+            }
+
+            var mtrVersionCondition = Conditions.SingleOrDefault(c => (c.XmlPropertyName == XmlNodes.Version && c.NodeLevel == NodeLevel.Material));
+
+            if (mtrVersionCondition != null)
+            {
+                IdentifyMtrVersionColumn(mtrVersionCondition);
+            }
  
             List<MatchedData> materials = new List<MatchedData>();
 
@@ -249,31 +324,58 @@ namespace DataInserter.ViewModel
 
                 string stdName = "";
                 string mtrName = "";
+                string delName = "";
+                string mtrVersion = "";
 
-                if (stdKeyExists && mtrKeyExists)
+
+                if (stdKeyExists)
                 {
-                    stdName = row[stdNameIntex - 1];
-                    mtrName = row[mtrNameIndex - 1];
+                    stdName = row[stdNameIndex - 1];
                 }
-                else if (stdKeyExists && !mtrKeyExists)
-                {
-                    stdName = row[stdNameIntex - 1];
-                }
-                else if (!stdKeyExists && mtrKeyExists)
+
+                if (mtrKeyExists)
                 {
                     mtrName = row[mtrNameIndex - 1];
                 }
+
+                if (delKeyExists)
+                {
+                    delName = row[delKeyIndex - 1];
+                }
+
+                if (mtrVersionExists)
+                {
+                    mtrVersion = row[mtrVersionIndex - 1];
+                }
+
 
                 for (int j = 1; j < colsCount; j++)
                 {
                     this.Status.CurrentActionNumber++;
 
-                    if (j == mtrNameIndex || j == stdNameIntex)
+                    if (j == delKeyIndex && row[j-1] == "TRUE")
+                    {
+                        DeleteList.Add(new MatchedData() { StandardName = stdName, MaterialName = mtrName, MtrVersion = mtrVersion, DeletingCondition = DeleteCondition});
+                        continue;
+                    }
+
+                    if (j == mtrNameIndex || j == stdNameIndex)
                     {
                         continue;
                     }
 
-                    var condition = Conditions.FirstOrDefault(c => c.ExcelPropertyName == xlRange.Cells[j][1].Value2.ToString());
+                    string cellContent;
+
+                    try
+                    {
+                        cellContent = xlRange.Cells[j][1].Value2.ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        cellContent = "";                      
+                    }
+
+                    var condition = Conditions.FirstOrDefault(c => c.ExcelPropertyName == cellContent);
 
                     if (IsNotEmpty(stdName, mtrName, row[j - 1], condition) && !materials.Any(d=>d.StandardName == stdName && d.MaterialName == mtrName && d.PropertyValue == row[j - 1] && d.RootCondition == condition))
                     {
@@ -407,7 +509,7 @@ namespace DataInserter.ViewModel
 
                     if (condition.ExcelPropertyName == cellContent && condition.XmlPropertyName == XmlNodes.StandardName)
                     {
-                        stdNameIntex = i;
+                        stdNameIndex = i;
                         stdKeyExists = true;
                     }
 
@@ -419,6 +521,67 @@ namespace DataInserter.ViewModel
 
                 if (mtrKeyExists && stdKeyExists)
                 {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IdentifyDeletingColumn()
+        {
+            for (int i = 1; i <= colsCount; i++)
+            {
+                string cellContent;
+                try
+                {
+                    cellContent = xlRange.Cells[i][1].Value2.ToString();
+                }
+                catch (Exception ex)
+                {
+                    cellContent = string.Empty;
+                    continue;
+                }
+
+                if (DeleteCondition.ExcelPropertyName == cellContent)
+                {
+                    delKeyIndex = i;
+                    delKeyExists = true;
+                }
+
+                if (delKeyExists)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IdentifyMtrVersionColumn(MatchingCondition condition)
+        {
+            for (int i = 1; i <= colsCount; i++)
+            {
+                string cellContent;
+                try
+                {
+                    cellContent = xlRange.Cells[i][1].Value2.ToString();
+                }
+                catch (Exception ex)
+                {
+                    cellContent = string.Empty;
+                    continue;
+                }
+
+                if (condition.ExcelPropertyName == cellContent)
+                {
+                    mtrVersionIndex = i;
+                    mtrVersionExists = true;
+                }
+
+                if (mtrVersionExists)
+                {
+                    VersionSpecified = true;
                     return true;
                 }
             }

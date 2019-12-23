@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataInserter.Model
 {
-    public class MatchingCondition
+    public class MatchingCondition : ICondition
     {
         public string ExcelPropertyName { get; set; }
         public NodeLevel NodeLevel { get; set; }
@@ -14,7 +14,7 @@ namespace DataInserter.Model
         public DatabaseTable DatabaseTableName { get; set; }
         public DatabaseFields DatabaseFieldName { get; set; }
 
-
+        #region Constructors
         public MatchingCondition(string excelPropertyName, NodeLevel level, XmlNodes xmlPropertyName)
         {
             this.ExcelPropertyName = excelPropertyName;
@@ -24,6 +24,15 @@ namespace DataInserter.Model
             SetDatabaseTableName();
             SetDatabaseFieldName();
         }
+
+        public MatchingCondition(string excelPropertyName, NodeLevel level)
+        {
+            this.ExcelPropertyName = excelPropertyName;
+            this.NodeLevel = level;
+
+            SetDatabaseTableName();
+        }
+        #endregion
 
         private void SetDatabaseTableName()
         {

@@ -48,6 +48,17 @@ namespace DataInserter.ViewModel
             }
         }
 
+        private DeletingSQLGeneratorViewModel _deletingSQLGeneratorViewModel;
+        public DeletingSQLGeneratorViewModel DeletingSQLGeneratorViewModel
+        {
+            get => _deletingSQLGeneratorViewModel;
+            set
+            {
+                _deletingSQLGeneratorViewModel = value;
+                NotifyPropertyChanged();
+            }
+        }
+
         private bool? _isRunnable;
         public bool? IsRunnable
         {
@@ -56,6 +67,18 @@ namespace DataInserter.ViewModel
             {
                 _isRunnable = value;
                 NotifyPropertyChanged();
+            }
+        }
+
+        private bool _allowDeleting;
+        public bool AllowDeleting
+        {
+            get => _allowDeleting;
+            set
+            {
+                _allowDeleting = value;
+                NotifyPropertyChanged();
+                this.DeletingSQLGeneratorViewModel.AllowDeleting = value;
             }
         }
 
@@ -94,8 +117,14 @@ namespace DataInserter.ViewModel
             ExcelReaderViewModel = new ExcelReaderViewModel(this);
             XmlManipulatorViewModel = new XMLManipulatorViewModel(this);
             SqlCreatorViewModel = new SQLCreatorViewModel(this);
+            DeletingSQLGeneratorViewModel = new DeletingSQLGeneratorViewModel(this);
         }
         #endregion
+
+        public void AllowDeletingSQLGeneration()
+        {
+
+        }
 
         #region Methods
         private void RunInserter()
@@ -104,7 +133,7 @@ namespace DataInserter.ViewModel
 
             ExcelReaderSuccess = ExcelReaderViewModel.RunExcelReader();
 
-            if (!ExcelReaderSuccess || ExcelReaderViewModel.ExcelReaderResult.Count < 1)
+            if (!ExcelReaderSuccess || (ExcelReaderViewModel.ExcelReaderResult.Count < 1 && ExcelReaderViewModel.DeleteList.Count < 1))
             {
                 //_view.Close();
                 return;
@@ -118,6 +147,11 @@ namespace DataInserter.ViewModel
             if (SqlCreatorViewModel.CreateSqlFile)
             {
                 SqlCreatorViewModel.RunSqlCreator(ExcelReaderViewModel.ExcelReaderResult);
+            }
+
+            if (DeletingSQLGeneratorViewModel.IsEnabled)
+            {
+                DeletingSQLGeneratorViewModel.RunSqlGenerator(ExcelReaderViewModel.DeleteList, ExcelReaderViewModel.VersionSpecified);
             }
 
             //_view.Close();
