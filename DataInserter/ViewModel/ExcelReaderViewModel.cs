@@ -248,7 +248,11 @@ namespace DataInserter.ViewModel
                 this.ExcelReaderResult = ReadExcel();
             }
 
-            if (ExcelReaderResult != null && ExcelReaderResult.Count != 0)
+            if (ExcelReaderResult.Count != 0)
+            {
+                return true;
+            }
+            else if (ExcelReaderResult.Count == 0 && AllowDeletingSQL)
             {
                 return true;
             }
