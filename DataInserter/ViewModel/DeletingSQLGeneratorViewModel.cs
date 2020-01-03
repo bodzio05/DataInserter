@@ -162,32 +162,46 @@ namespace DataInserter.ViewModel
                 case NodeLevel.Standard:
                     if (_versionSpecified)
                     {
-                        throw new NotImplementedException();
+                        return String.Format(
+                            "DELETE FROM TOJMGR.PD_MTRSTANDARDS WHERE STANDARDNAME = '{0}' AND VERSION = '{1}';" + Environment.NewLine +
+                            "DELETE FROM TOJMGR.PD_MATERIALS WHERE MTRSTDNAME = '{0}' AND STDVERSION = '{1}';" + Environment.NewLine +
+                            "DELETE FROM TOJMGR.PD_PARAMETERS WHERE REFKEY LIKE '%M-{0}-{1}%';" + Environment.NewLine +
+                            "DELETE FROM TOJMGR.PD_PRIMITIVES WHERE REFKEY LIKE '%M-{0}-{1}%';" + Environment.NewLine +
+                            "DELETE FROM TOJMGR.PD_DIMPOINTS WHERE REFKEY LIKE '%M-{0}-{1}%';" + Environment.NewLine,
+                            data.StandardName, data.StdVersion
+                            );
                     }
                     else
                     {
-                        throw new NotImplementedException();
+                        return String.Format(
+                            "DELETE FROM TOJMGR.PD_MTRSTANDARDS WHERE STANDARDNAME = '{0}';" + Environment.NewLine +
+                            "DELETE FROM TOJMGR.PD_MATERIALS WHERE MTRSTDNAME = '{0}';" + Environment.NewLine +
+                            "DELETE FROM TOJMGR.PD_PARAMETERS WHERE REFKEY LIKE '%M-{0}-%';" + Environment.NewLine +
+                            "DELETE FROM TOJMGR.PD_PRIMITIVES WHERE REFKEY LIKE '%M-{0}-%';" + Environment.NewLine +
+                            "DELETE FROM TOJMGR.PD_DIMPOINTS WHERE REFKEY LIKE '%M-{0}-%';" + Environment.NewLine,
+                            data.StandardName
+                            );
                     }
 
                 case NodeLevel.Material:
                     if (_versionSpecified)
                     {
                         return String.Format(
-                            "DELETE FROM TOJMGR.PD_MATERIALS WHERE MTRSTDNAME = '{0}' AND MTRNAME = '{1}' AND VERSION = '{2}';" + Environment.NewLine +
-                            "DELETE FROM TOJMGR.PD_PARAMETERS WHERE REFKEY LIKE '%M-{1}-{2}%';" + Environment.NewLine +
-                            "DELETE FROM TOJMGR.PD_PRIMITIVES WHERE REFKEY LIKE '%M-{1}-{2}%';" + Environment.NewLine +
-                            "DELETE FROM TOJMGR.PD_DIMPOINTS WHERE REFKEY LIKE '%M-{1}-{2}%';" + Environment.NewLine,
-                            data.StandardName, data.MaterialName, data.MtrVersion
+                            "DELETE FROM TOJMGR.PD_MATERIALS WHERE MTRNAME = '{0}' AND VERSION = '{1}';" + Environment.NewLine +
+                            "DELETE FROM TOJMGR.PD_PARAMETERS WHERE REFKEY LIKE '%M-{0}-{1}%';" + Environment.NewLine +
+                            "DELETE FROM TOJMGR.PD_PRIMITIVES WHERE REFKEY LIKE '%M-{0}-{1}%';" + Environment.NewLine +
+                            "DELETE FROM TOJMGR.PD_DIMPOINTS WHERE REFKEY LIKE '%M-{0}-{1}%';" + Environment.NewLine,
+                            data.MaterialName, data.MtrVersion
                             );
                     }
                     else
                     {
                         return String.Format(
-                            "DELETE FROM TOJMGR.PD_MATERIALS WHERE MTRSTDNAME = '{0}' AND MTRNAME = '{1}';" + Environment.NewLine +
-                            "DELETE FROM TOJMGR.PD_PARAMETERS WHERE REFKEY LIKE '%M-{1}-%';" + Environment.NewLine +
-                            "DELETE FROM TOJMGR.PD_PRIMITIVES WHERE REFKEY LIKE '%M-{1}-%';" + Environment.NewLine +
-                            "DELETE FROM TOJMGR.PD_DIMPOINTS WHERE REFKEY LIKE '%M-{1}-%';" + Environment.NewLine,
-                            data.StandardName, data.MaterialName
+                            "DELETE FROM TOJMGR.PD_MATERIALS WHERE MTRNAME = '{0}';" + Environment.NewLine +
+                            "DELETE FROM TOJMGR.PD_PARAMETERS WHERE REFKEY LIKE '%M-{0}-%';" + Environment.NewLine +
+                            "DELETE FROM TOJMGR.PD_PRIMITIVES WHERE REFKEY LIKE '%M-{0}-%';" + Environment.NewLine +
+                            "DELETE FROM TOJMGR.PD_DIMPOINTS WHERE REFKEY LIKE '%M-{0}-%';" + Environment.NewLine,
+                            data.MaterialName
                             );
                     }
                 case NodeLevel.Parameter:
