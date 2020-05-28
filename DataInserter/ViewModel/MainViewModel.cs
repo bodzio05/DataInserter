@@ -154,6 +154,7 @@ namespace DataInserter.ViewModel
                 DeletingSQLGeneratorViewModel.RunSqlGenerator(ExcelReaderViewModel.DeleteList, ExcelReaderViewModel.VersionSpecified);
             }
 
+            MessageBox.Show("Finished!");
             //_view.Close();
         }
 

@@ -170,6 +170,8 @@ namespace DataInserter.ViewModel
         private int delKeyIndex;
         private int mtrVersionIndex;
 
+        private Dictionary<string, int> columns;
+
         private bool stdKeyExists;
         private bool mtrKeyExists;
         private bool delKeyExists;
@@ -192,6 +194,7 @@ namespace DataInserter.ViewModel
             this.mainViewModel = mainViewModel;
             this.Status = new Status(StatusEnum.Waiting);
             this.ExcelReaderResult = new List<MatchedData>();
+            this.columns = new Dictionary<string, int>();
             this.DialogService = new MvvmDialogs.DialogService();
 
             Conditions = new ObservableCollection<MatchingCondition>();
@@ -210,6 +213,16 @@ namespace DataInserter.ViewModel
         {
             NewConditionViewModel dialog = new NewConditionViewModel(this);
             var result = DialogService.ShowDialog<NewConditionView>(this, dialog);
+
+            foreach (var condition in Conditions)
+            {
+                if (condition.Type == ConditionType.EditParameterCondition)
+                {
+                    condition.DatabaseTableName = DatabaseTable.PD_PARAMETERS;
+                    condition.DatabaseFieldName = DatabaseFields.PARNAME;
+                    condition.XmlPropertyName = XmlNodes.Parameter;
+                }
+            }
         }
 
         //public void ModifyCondition()
@@ -303,7 +316,7 @@ namespace DataInserter.ViewModel
         {
             IdentifyRowsAndColumnsNumber();
 
-            if (!IdentifyStandardAndName())
+            if (!IdentifyColumns())
             {
                 return null;
             }
@@ -353,11 +366,11 @@ namespace DataInserter.ViewModel
                 }
 
 
-                for (int j = 1; j < colsCount; j++)
+                for (int j = 1; j <= colsCount; j++)
                 {
-                    this.Status.CurrentActionNumber++;
+                    //this.Status.CurrentActionNumber++;
 
-                    if (j == delKeyIndex && row[j-1] == "TRUE")
+                    if (j == delKeyIndex && row[j-1].ToUpper() == "TRUE")
                     {
                         DeleteList.Add(new MatchedData() { StandardName = stdName, MaterialName = mtrName, MtrVersion = mtrVersion, DeletingCondition = DeleteCondition});
                         continue;
@@ -372,14 +385,17 @@ namespace DataInserter.ViewModel
 
                     try
                     {
-                        cellContent = xlRange.Cells[j][1].Value2.ToString();
+                        cellContent = xlRange.Cells[j][i].Value2.ToString();
                     }
                     catch (Exception ex)
                     {
                         cellContent = "";                      
                     }
 
-                    var condition = Conditions.FirstOrDefault(c => c.ExcelPropertyName == cellContent);
+                    var property = columns.FirstOrDefault(c => c.Value == j).Key;
+
+                    //var condition = Conditions.FirstOrDefault(c => c.ExcelPropertyName == cellContent);
+                    var condition = Conditions.FirstOrDefault(c => c.ExcelPropertyName == property);
 
                     if (IsNotEmpty(stdName, mtrName, row[j - 1], condition) && !materials.Any(d=>d.StandardName == stdName && d.MaterialName == mtrName && d.PropertyValue == row[j - 1] && d.RootCondition == condition))
                     {
@@ -395,6 +411,11 @@ namespace DataInserter.ViewModel
             }
 
             return materials;
+        }
+
+        private void CreateHeadersList()
+        {
+            throw new NotImplementedException();
         }
 
         private string[] ReadRow(int i)
@@ -488,14 +509,14 @@ namespace DataInserter.ViewModel
             return lastNotEmptyCell;
         }
 
-        private bool IdentifyStandardAndName()
+        private bool IdentifyColumns()
         {
-            for (int i = 1; i <= colsCount; i++)
+            for (int j = 1; j <= colsCount; j++)
             {
                 string cellContent;
                 try
                 {
-                    cellContent = xlRange.Cells[i][1].Value2.ToString();
+                    cellContent = xlRange.Cells[j][1].Value2.ToString();
                 }
                 catch (Exception ex)
                 {
@@ -507,39 +528,36 @@ namespace DataInserter.ViewModel
                 {
                     if (condition.ExcelPropertyName == cellContent && condition.XmlPropertyName == XmlNodes.Name)
                     {
-                        mtrNameIndex = i;
+                        mtrNameIndex = j;
                         mtrKeyExists = true;
                     }
-
-                    if (condition.ExcelPropertyName == cellContent && condition.XmlPropertyName == XmlNodes.StandardName)
+                    else if (condition.ExcelPropertyName == cellContent && condition.XmlPropertyName == XmlNodes.StandardName)
                     {
-                        stdNameIndex = i;
+                        stdNameIndex = j;
                         stdKeyExists = true;
                     }
 
-                    if (mtrKeyExists && stdKeyExists)
+                    if (!columns.ContainsKey(cellContent))
                     {
-                        return true;
+                        columns.Add(cellContent, j);
                     }
                 }
-
-                if (mtrKeyExists && stdKeyExists)
-                {
-                    return true;
-                }
             }
-
-            return false;
+            
+            if (mtrKeyExists || stdKeyExists)
+                return true;
+            else
+                return false;
         }
 
         private bool IdentifyDeletingColumn()
         {
-            for (int i = 1; i <= colsCount; i++)
+            for (int j = 1; j <= colsCount; j++)
             {
                 string cellContent;
                 try
                 {
-                    cellContent = xlRange.Cells[i][1].Value2.ToString();
+                    cellContent = xlRange.Cells[j][1].Value2.ToString();
                 }
                 catch (Exception ex)
                 {
@@ -549,7 +567,7 @@ namespace DataInserter.ViewModel
 
                 if (DeleteCondition.ExcelPropertyName == cellContent)
                 {
-                    delKeyIndex = i;
+                    delKeyIndex = j;
                     delKeyExists = true;
                 }
 
@@ -564,12 +582,12 @@ namespace DataInserter.ViewModel
 
         private bool IdentifyMtrVersionColumn(MatchingCondition condition)
         {
-            for (int i = 1; i <= colsCount; i++)
+            for (int j = 1; j <= colsCount; j++)
             {
                 string cellContent;
                 try
                 {
-                    cellContent = xlRange.Cells[i][1].Value2.ToString();
+                    cellContent = xlRange.Cells[j][1].Value2.ToString();
                 }
                 catch (Exception ex)
                 {
@@ -579,7 +597,7 @@ namespace DataInserter.ViewModel
 
                 if (condition.ExcelPropertyName == cellContent)
                 {
-                    mtrVersionIndex = i;
+                    mtrVersionIndex = j;
                     mtrVersionExists = true;
                 }
 

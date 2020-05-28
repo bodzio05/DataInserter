@@ -13,6 +13,9 @@ namespace DataInserter.Model
         public XmlNodes XmlPropertyName { get; set; }
         public DatabaseTable DatabaseTableName { get; set; }
         public DatabaseFields DatabaseFieldName { get; set; }
+        public ConditionType Type { get; set; }
+
+        public Parameter Parameter { get; set; }
 
         #region Constructors
         public MatchingCondition(string excelPropertyName, NodeLevel level, XmlNodes xmlPropertyName)
@@ -20,6 +23,7 @@ namespace DataInserter.Model
             this.ExcelPropertyName = excelPropertyName;
             this.NodeLevel = level;
             this.XmlPropertyName = xmlPropertyName;
+            this.Type = ConditionType.MatchingCondition;
 
             SetDatabaseTableName();
             SetDatabaseFieldName();
@@ -29,6 +33,16 @@ namespace DataInserter.Model
         {
             this.ExcelPropertyName = excelPropertyName;
             this.NodeLevel = level;
+
+            SetDatabaseTableName();
+        }
+
+        public MatchingCondition(string excelPropertyName, NodeLevel level, Parameter parameter)
+        {
+            this.ExcelPropertyName = excelPropertyName;
+            this.NodeLevel = level;
+            this.Parameter = parameter;
+            this.Type = ConditionType.EditParameterCondition;
 
             SetDatabaseTableName();
         }
@@ -127,6 +141,9 @@ namespace DataInserter.Model
                     break;
                 case XmlNodes.GroupName:
                     DatabaseFieldName = DatabaseFields.GROUPNAME;
+                    break;
+                case XmlNodes.Parameter:
+                    DatabaseFieldName = DatabaseFields.PARNAME;
                     break;
                 default:
                     break;

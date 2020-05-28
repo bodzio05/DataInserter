@@ -8,11 +8,12 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>DataInserter</RootNamespace>
     <AssemblyName>DataInserter</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -34,11 +35,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Confidence.API.ServiceModel">
+      <HintPath>..\..\..\..\..\..\ConsolisTekla\ConsolisTekla_Develop\TeklaTools\Confidence.API.ServiceModel.dll</HintPath>
+    </Reference>
     <Reference Include="Confidence.Platform.ServiceModel">
-      <HintPath>..\..\..\..\..\..\ConsolisTekla\CNS\TeklaTools_Package\Confidence.Platform.ServiceModel.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\ConsolisTekla\ConsolisTekla_Develop\TeklaTools\Confidence.Platform.ServiceModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Confidence.Workstation.Platform.Applications">
+      <HintPath>..\..\..\..\..\..\ConsolisTekla\ConsolisTekla_Develop\TeklaTools\Confidence.Workstation.Platform.Applications.dll</HintPath>
     </Reference>
     <Reference Include="Confident_ConfidenceTools">
-      <HintPath>..\..\..\..\..\..\ConsolisTekla\CNS\2017\Addons\TeklaTools\Confident_ConfidenceTools.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\ConsolisTekla\ConsolisTekla_Develop\TeklaTools\Confident_ConfidenceTools.dll</HintPath>
+    </Reference>
+    <Reference Include="Confident_DatabaseEntities">
+      <HintPath>..\..\..\..\..\..\ConsolisTekla\ConsolisTekla_Develop\TeklaTools\Confident_DatabaseEntities.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Expression.Interactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\Microsoft.Expression.Interactions.dll</HintPath>
@@ -48,6 +58,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\System.Windows.Interactivity.dll</HintPath>
@@ -70,6 +81,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ConfidenceTools.cs" />
+    <Compile Include="Model\ConditionType.cs" />
     <Compile Include="Model\DatabaseFields.cs" />
     <Compile Include="Model\DatabaseTable.cs" />
     <Compile Include="Model\DeletingCondition.cs" />
@@ -77,6 +90,7 @@
     <Compile Include="Model\MatchedData.cs" />
     <Compile Include="Model\MatchingCondition.cs" />
     <Compile Include="Model\NodeLevel.cs" />
+    <Compile Include="Model\Parameter.cs" />
     <Compile Include="Model\Status.cs" />
     <Compile Include="Model\StatusEnum.cs" />
     <Compile Include="Model\XmlNodes.cs" />
@@ -246,12 +260,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="View\Resources\icon_iron_man.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Tools\Tools.csproj">
-      <Project>{e3ef566b-c59f-4bfc-badd-ac922580f7e1}</Project>
-      <Name>Tools</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

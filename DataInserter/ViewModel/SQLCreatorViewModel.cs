@@ -1,5 +1,4 @@
 ﻿using Confidence.Platform.ServiceModel.Data;
-using Confident_ConfidenceTools.ConfidenceWrappers.Interfaces.Materials;
 using DataInserter.Model;
 using DataInserter.ViewModel.Commands;
 using DataInserter.ViewModel.Interfaces;
@@ -7,11 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using Tools;
+using Confident_ConfidenceTools;
 
 namespace DataInserter.ViewModel
 {
@@ -180,18 +177,26 @@ namespace DataInserter.ViewModel
             List<string> rollbackFileContent = new List<string>();
             foreach (var data in this.excelReaderResult)
             {
-                fileContent.Add(CreateQuery(data));
+                try
+                {
+                    fileContent.Add(CreateQuery(data));
+                    if (CreateRollbackSql)
+                    {
+                        rollbackFileContent.Add(RollbackQuery(data));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    continue;
+                }
+
+
+                WriteToFile(fileContent, this.SqlFolderPath, this.SqlFileName);
+
                 if (CreateRollbackSql)
                 {
-                    rollbackFileContent.Add(RollbackQuery(data));
+                    WriteToFile(rollbackFileContent, this.SqlFolderPath, this.SqlFileName + "Rollback");
                 }
-            }
-
-            WriteToFile(fileContent, this.SqlFolderPath, this.SqlFileName);
-
-            if (CreateRollbackSql)
-            {
-                WriteToFile(rollbackFileContent, this.SqlFolderPath, this.SqlFileName + "Rollback");
             }
         }
 

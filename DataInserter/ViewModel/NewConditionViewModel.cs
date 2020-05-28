@@ -35,6 +35,16 @@ namespace DataInserter.ViewModel
             set
             {
                 _nodeLevel = value;
+
+                if (NodeLevel == NodeLevel.Parameter)
+                {
+                    EditParameterMode = true;
+                    XmlNodeName = XmlNodes.Parameter;
+                }
+                else
+                {
+                    EditParameterMode = false;
+                }
                 NotifyPropertyChanged();
             }
         }
@@ -46,6 +56,42 @@ namespace DataInserter.ViewModel
             set
             {
                 _xmlNodeName = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private string _parameterDescription;
+        public string ParameterDescription
+        {
+            get => _parameterDescription;
+            set
+            {
+                _parameterDescription = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private int _parameterContext;
+        public int ParameterContext
+        {
+            get => _parameterContext;
+            set
+            {
+                if (!Int32.TryParse(value.ToString(), out int result))
+                    _parameterContext = 2;
+                else
+                    _parameterContext = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private string _parameterValueType;
+        public string ParameterValueType
+        {
+            get => _parameterValueType;
+            set
+            {
+                _parameterValueType = value;
                 NotifyPropertyChanged();
             }
         }
@@ -69,23 +115,45 @@ namespace DataInserter.ViewModel
             {
                 _deleteFlag = value;
                 NotifyPropertyChanged();
-                if (value)
-                    IsEnabled = false;
-                else
-                    IsEnabled = true;
+                NotifyPropertyChanged(nameof(IsEnabled));
+                //if (value)
+                //    IsEnabled = false;
+                //else
+                //    IsEnabled = true;
             }
         }
 
         private bool _isEnabled = true;
         public bool IsEnabled
         {
-            get => _isEnabled;
-            set
+            //get => _isEnabled;
+            //set
+            //{
+            //    _isEnabled = value;
+            //    NotifyPropertyChanged();
+            //}
+            get
             {
-                _isEnabled = value;
-                NotifyPropertyChanged();
+                if (DeleteFlag || EditParameterMode)
+                    return false;
+                else 
+                    return true;
             }
         }
+
+        private bool _editParameterMode;
+        public bool EditParameterMode
+        {
+            get => _editParameterMode;
+            set
+            {
+                _editParameterMode = value;
+                NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(IsEnabled));
+            }
+        }
+
+
 
         #endregion
 
@@ -115,23 +183,36 @@ namespace DataInserter.ViewModel
         #region Methods
         private void AddAndClose()
         {
-            if (DeleteFlag)
+            if (DeleteFlag && EditParameterMode)
+            {
+                MessageBox.Show("You cannot delete parameter! In development.");
+            }
+            else if (DeleteFlag)
             {
                 ExcelReaderViewModel.DeleteCondition = new DeletingCondition(this.ExcelColumnName, this.NodeLevel);
                 ExcelReaderViewModel.AllowDeletingSQL = true;
             }
             else
             {
-                if (SelectedCondition == null)
+                if (NodeLevel == NodeLevel.Parameter)
                 {
-                    ExcelReaderViewModel.Conditions.Add(new MatchingCondition(this.ExcelColumnName, this.NodeLevel, this.XmlNodeName));
+                    ExcelReaderViewModel.Conditions.Add(new MatchingCondition(this.ExcelColumnName, this.NodeLevel, new Parameter(this.ExcelColumnName, this.ParameterDescription, this.ParameterContext, this.ParameterValueType)));
                 }
                 else
                 {
-                    SelectedCondition.ExcelPropertyName = this.ExcelColumnName;
-                    SelectedCondition.NodeLevel = this.NodeLevel;
-                    SelectedCondition.XmlPropertyName = this.XmlNodeName;
+                    ExcelReaderViewModel.Conditions.Add(new MatchingCondition(this.ExcelColumnName, this.NodeLevel, this.XmlNodeName));
                 }
+
+                //if (SelectedCondition == null)
+                //{
+                //    ExcelReaderViewModel.Conditions.Add(new MatchingCondition(this.ExcelColumnName, this.NodeLevel, this.XmlNodeName));
+                //}
+                //else
+                //{
+                //    SelectedCondition.ExcelPropertyName = this.ExcelColumnName;
+                //    SelectedCondition.NodeLevel = this.NodeLevel;
+                //    SelectedCondition.XmlPropertyName = this.XmlNodeName;
+                //}
             }
 
             Close();

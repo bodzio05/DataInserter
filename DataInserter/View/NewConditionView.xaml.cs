@@ -23,5 +23,12 @@ namespace DataInserter.View
         {
             InitializeComponent();
         }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            LevelCombobox.ItemsSource = Enum.GetValues(typeof(Model.NodeLevel));
+            FieldCombobox.ItemsSource = Enum.GetValues(typeof(Model.XmlNodes));
+        }
     }
+
 }

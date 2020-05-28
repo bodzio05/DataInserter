@@ -164,7 +164,6 @@ namespace DataInserter.ViewModel
                     {
                         return String.Format(
                             "DELETE FROM TOJMGR.PD_MTRSTANDARDS WHERE STANDARDNAME = '{0}' AND VERSION = '{1}';" + Environment.NewLine +
-                            "DELETE FROM TOJMGR.PD_MATERIALS WHERE MTRSTDNAME = '{0}' AND STDVERSION = '{1}';" + Environment.NewLine +
                             "DELETE FROM TOJMGR.PD_PARAMETERS WHERE REFKEY LIKE '%M-{0}-{1}%';" + Environment.NewLine +
                             "DELETE FROM TOJMGR.PD_PRIMITIVES WHERE REFKEY LIKE '%M-{0}-{1}%';" + Environment.NewLine +
                             "DELETE FROM TOJMGR.PD_DIMPOINTS WHERE REFKEY LIKE '%M-{0}-{1}%';" + Environment.NewLine,
@@ -175,7 +174,6 @@ namespace DataInserter.ViewModel
                     {
                         return String.Format(
                             "DELETE FROM TOJMGR.PD_MTRSTANDARDS WHERE STANDARDNAME = '{0}';" + Environment.NewLine +
-                            "DELETE FROM TOJMGR.PD_MATERIALS WHERE MTRSTDNAME = '{0}';" + Environment.NewLine +
                             "DELETE FROM TOJMGR.PD_PARAMETERS WHERE REFKEY LIKE '%M-{0}-%';" + Environment.NewLine +
                             "DELETE FROM TOJMGR.PD_PRIMITIVES WHERE REFKEY LIKE '%M-{0}-%';" + Environment.NewLine +
                             "DELETE FROM TOJMGR.PD_DIMPOINTS WHERE REFKEY LIKE '%M-{0}-%';" + Environment.NewLine,

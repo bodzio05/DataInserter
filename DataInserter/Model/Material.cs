@@ -8,15 +8,15 @@ namespace DataInserter
 {
     public class Material
     {
+        #region Properties
         public string Name { get; set; }
         public string Code { get; set; }
         public string Version { get; set; }
         public string Standard { get; set; }
+        #endregion
 
-        public Material()
-        {
-
-        }
+        #region Constructors
+        public Material() { }
 
         public Material(string name, string code): this()
         {
@@ -28,5 +28,6 @@ namespace DataInserter
         {
             Standard = standard;
         }
+        #endregion
     }
 }

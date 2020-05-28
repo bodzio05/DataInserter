@@ -31,7 +31,8 @@ namespace DataInserter.Model
         ValueOptions,
         ContextString,
         ExternalName,
-        GroupName
+        GroupName,
+        Parameter
     }
 
 }

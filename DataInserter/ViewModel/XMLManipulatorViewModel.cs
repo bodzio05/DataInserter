@@ -142,21 +142,17 @@ namespace DataInserter.ViewModel
 
         private void EditFiles()
         {
-            foreach (var data in excelReaderResult)
+            foreach (var xml in XMLFiles)
             {
-                if (data.MaterialName == "AEP400PI-190-190-2")
-                {
-                    var test = true;
-                }
+                XDocument document = XDocument.Load(xml);
+                var standardNodes = document.Root.Elements();
+                var materials = document.Root.Elements().Where(e => e.Name == "Material").ToList();
 
-                foreach (var xml in XMLFiles)
-                {
-                    XDocument document = XDocument.Load(xml);
-
+                foreach (var data in excelReaderResult)
+                {                  
                     switch (data.RootCondition.NodeLevel)
                     {
                         case NodeLevel.Standard:
-                            var standardNodes = document.Root.Elements();
                             var standardName = document.Root.Element("StandardName").Value;
                             data.StdVersion = standardNodes.FirstOrDefault(n=>n.Name == "Version").Value;
                             var node = standardNodes.Where(x => x.Name.ToString() == data.RootCondition.XmlPropertyName.ToString()).ToList();
@@ -174,7 +170,7 @@ namespace DataInserter.ViewModel
                             break;
 
                         case NodeLevel.Material:
-                            var materials = document.Root.Elements().Where(e => e.Name == "Material").ToList();
+
                             foreach (var material in materials)
                             {
                                 if (material.Element("Name").Value == data.MaterialName)
@@ -198,6 +194,127 @@ namespace DataInserter.ViewModel
                             break;
 
                         case NodeLevel.Parameter:
+                            
+                            var templateNode = document.Root.Element("Template");
+                            var allTemplateParameters =  templateNode.Elements().Where(x => x.Name.ToString() == "Parameter").ToList();
+                            int biggestParameterNumber = 10000;
+
+                            foreach (var parameter in allTemplateParameters)
+                            {
+                                int parameterNumber = Int32.Parse(parameter.Elements().FirstOrDefault(p => p.Name.ToString() == "Number").Value);
+                                if (parameterNumber > biggestParameterNumber)
+                                    biggestParameterNumber = parameterNumber + 1;
+                            }
+
+                            if (templateNode != null)
+                            {
+                                var parameterInTemplate = allTemplateParameters.FirstOrDefault(p => p.Element("Name").Value.ToString() == data.RootCondition.ExcelPropertyName);
+
+                                if (parameterInTemplate != null)
+                                {
+                                    //parameterInTemplate.Elements().FirstOrDefault(e => e.Name.ToString() == "Value").Value = data.PropertyValue;
+                                    parameterInTemplate.Elements().FirstOrDefault(e => e.Name.ToString() == "Description").Value = data.RootCondition.Parameter.Description;
+                                    parameterInTemplate.Elements().FirstOrDefault(e => e.Name.ToString() == "Context").Value = data.RootCondition.Parameter.Context.ToString();
+
+                                    if (parameterInTemplate.Elements().Any(p => p.Name.ToString() == "ValueType"))
+                                    {
+                                        parameterInTemplate.Elements().FirstOrDefault(e => e.Name.ToString() == "ValueType").Value = data.RootCondition.Parameter.ValueType;
+                                    }
+                                }                              
+                                else if (CreateNodeIfNotExists)
+                                {
+                                    XElement newParameter = new XElement("Parameter");
+
+                                    string name = data.RootCondition.Parameter.Name;
+                                    string number = biggestParameterNumber.ToString();
+                                    string context = data.RootCondition.Parameter.Context.ToString();
+                                    string description = data.RootCondition.Parameter.Description;
+                                    string valueType = data.RootCondition.Parameter.ValueType;
+                                    //string value = data.PropertyValue;
+                                    string unit = data.RootCondition.Parameter.Unit;
+                                    string valueOptions = data.RootCondition.Parameter.ValueOptions;
+
+                                    XElement newParameterName = new XElement("Name", name);
+                                    XElement newParameterNumber = new XElement("Number", number);
+                                    XElement newParameterContext = new XElement("Context", context);
+                                    XElement newParameterDescription = new XElement("Description", description);
+                                    XElement newParameterValueType = new XElement("ValueType", valueType);
+                                    XElement newParameterValue = new XElement("Value", "");
+                                    XElement newParameterUnit = new XElement("Unit", unit);
+                                    XElement newParameterValueOptions = new XElement("ValueOptions", valueOptions);
+
+                                    newParameter.Add(
+                                        newParameterName,
+                                        newParameterNumber,
+                                        newParameterContext,
+                                        newParameterDescription,
+                                        newParameterValueType,
+                                        newParameterValue,
+                                        newParameterUnit,
+                                        newParameterValueOptions
+                                        );
+
+                                    templateNode.Elements().LastOrDefault(n => n.Name == "Parameter").AddAfterSelf(newParameter);
+                                }
+                            }
+
+                            foreach (var material in materials)
+                            {
+                                if (material.Element("Name").Value == data.MaterialName)
+                                {
+                                    var allParameters = material.Elements().Where(x => x.Name.ToString() == "Parameter").ToList();
+                                    var existingParameter = allParameters.FirstOrDefault(p => p.Element("Name").Value.ToString() == data.RootCondition.ExcelPropertyName);
+
+                                    if (existingParameter != null)
+                                    {
+                                        existingParameter.Elements().FirstOrDefault(e => e.Name.ToString() == "Value").Value = data.PropertyValue;
+                                        existingParameter.Elements().FirstOrDefault(e => e.Name.ToString() == "Description").Value = data.RootCondition.Parameter.Description;
+                                        existingParameter.Elements().FirstOrDefault(e => e.Name.ToString() == "Context").Value = data.RootCondition.Parameter.Context.ToString();
+
+                                        if (existingParameter.Elements().ToList().Any(p=>p.Name.ToString() == "ValueType"))
+                                        {
+                                            existingParameter.Elements().FirstOrDefault(e => e.Name.ToString() == "ValueType").Value = data.RootCondition.Parameter.ValueType;
+                                        }
+                                    }
+                                    else if (CreateNodeIfNotExists)
+                                    {
+                                        XElement newParameter = new XElement("Parameter");
+
+                                        string name = data.RootCondition.Parameter.Name;
+                                        string number = biggestParameterNumber.ToString();
+                                        string context = data.RootCondition.Parameter.Context.ToString();
+                                        string description = data.RootCondition.Parameter.Description;
+                                        string valueType = data.RootCondition.Parameter.ValueType;
+                                        string value = data.PropertyValue;
+                                        string unit = data.RootCondition.Parameter.Unit;
+                                        string valueOptions = data.RootCondition.Parameter.ValueOptions;
+
+                                        XElement newParameterName = new XElement("Name", name);
+                                        XElement newParameterNumber = new XElement("Number", number);
+                                        XElement newParameterContext = new XElement("Context", context);
+                                        XElement newParameterDescription = new XElement("Description", description);
+                                        XElement newParameterValueType = new XElement("ValueType", valueType);
+                                        XElement newParameterValue = new XElement("Value", value);
+                                        XElement newParameterUnit = new XElement("Unit", unit);
+                                        XElement newParameterValueOptions = new XElement("ValueOptions", valueOptions);
+
+                                        newParameter.Add(
+                                            newParameterName,
+                                            newParameterNumber,
+                                            newParameterContext,
+                                            newParameterDescription,
+                                            newParameterValueType,
+                                            newParameterValue,
+                                            newParameterUnit,
+                                            newParameterValueOptions
+                                            );
+
+                                        material.Elements().LastOrDefault(n => n.Name == "Parameter").AddAfterSelf(newParameter);
+                                    }
+
+                                    break;
+                                }
+                            }
                             break;
                         default:
                             break;
