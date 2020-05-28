@@ -10,8 +10,8 @@
         xmlns:uc="clr-namespace:DataInserter.View.UserControls"
         xmlns:views="clr-namespace:DataInserter.View"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        Title="Data Inserter" Height="1000" Width="830" ResizeMode="NoResize"
-        Icon="pack://application:,,,/DataInserter;component/View/Resources/icon_iron_man.png"             
+        Title="Traktor" Height="1000" Width="830" ResizeMode="NoResize"
+        Icon="pack://application:,,,/DataInserter;component/View/Resources/traktor.png"             
         xmlns:md="https://github.com/fantasticfiasco/mvvm-dialogs"
         md:DialogServiceViews.IsRegistered="True">
 

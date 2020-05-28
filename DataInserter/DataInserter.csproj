@@ -259,7 +259,14 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="View\Resources\icon_iron_man.png" />
+    <Resource Include="View\Resources\icon_iron_man.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Resources\traktor.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
